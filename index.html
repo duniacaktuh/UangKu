@@ -4,934 +4,975 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthFinance - Pencatatan Keuangan</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
                     colors: {
-                        dark: '#0f141e',
-                        panel: '#161c28',
-                        card: '#1e2532',
-                        gold: '#eab308',
-                        jatim: '#c41b38',
-                        cash: '#26bad1',
-                        gopay: '#1bc470',
-                        seabank: '#f97316',
-                        textMuted: '#8b9bb4'
+                        dark: {
+                            900: '#0B0F19', // Background sangat gelap
+                            800: '#111827', // Sidebar & Cards
+                            700: '#1F2937', // Hover states
+                            border: '#374151'
+                        },
+                        brand: {
+                            gold: '#FBBF24',
+                            goldHover: '#F59E0B'
+                        },
+                        acc: {
+                            jatim: '#c41b38',
+                            cash: '#8b9bb4',
+                            gopay: '#1bc470',
+                            seabank: '#8b9bb4',
+                            red: '#EF4444'
+                        }
                     }
                 }
             }
         }
     </script>
+
     <style>
-        /* Custom Scrollbar */
+        /* Custom Scrollbar & Base Styles */
+        body { background-color: #0B0F19; color: #F3F4F6; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0f141e; }
-        ::-webkit-scrollbar-thumb { background: #2c364c; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3f4c6b; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4B5563; }
         
-        /* Hide number input arrows */
+        .card-elegant {
+            background: linear-gradient(145deg, #111827 0%, #0f1422 100%);
+            border: 1px solid #1F2937;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Number Input format hiding arrows */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
-        .nav-active { background: rgba(234, 179, 8, 0.1); color: #eab308; border-left: 3px solid #eab308; }
-        .glass-effect { background: rgba(30, 37, 50, 0.7); backdrop-filter: blur(10px); }
-
-        /* Print Styles */
+        /* Print Styles matching Image 1 */
         @media print {
-            body { background: white; color: black; font-size: 12pt; }
-            #sidebar, #header, .no-print { display: none !important; }
-            #main-content { margin: 0; padding: 0; width: 100%; }
-            #rekapitulasi { display: block !important; }
-            .card-print { border: 1px solid #ddd !important; background: white !important; color: black !important; padding: 15px !important; margin-bottom: 20px;}
-            .card-print * { color: black !important; }
-            .print-table { width: 100%; border-collapse: collapse; }
-            .print-table th, .print-table td { border-bottom: 1px solid #ddd; padding: 8px; text-align: left; }
-            .print-table th { background-color: #f3f4f6 !important; font-weight: bold; }
-            .print-text-right { text-align: right !important; }
-            .print-title { font-size: 24pt; font-weight: bold; margin-bottom: 5px;}
-            .print-subtitle { font-size: 12pt; color: #555 !important; margin-bottom: 20px;}
-            canvas { display: none !important; }
+            body { background-color: white !important; color: black !important; }
+            #sidebar, #header-controls, .no-print { display: none !important; }
+            #main-content { margin-left: 0 !important; padding: 0 !important; }
+            .card-elegant { 
+                background: white !important; 
+                border: 1px solid #E5E7EB !important; 
+                box-shadow: none !important; 
+                color: black !important;
+            }
+            .card-elegant * { color: black !important; }
+            .print-text-dark { color: #111827 !important; }
+            .print-text-gray { color: #4B5563 !important; }
+            .print-border { border-color: #E5E7EB !important; }
+            .print-bg-white { background: white !important; }
+            
+            /* Specific overrides for Rekapitulasi Print */
+            #rekap-cards { gap: 1rem !important; margin-bottom: 2rem !important; }
+            #rekap-table-container { border: 1px solid #E5E7EB !important; border-radius: 0.5rem !important; padding: 1rem !important; }
+            table { border-collapse: collapse; width: 100%; }
+            th { border-bottom: 2px solid #111827 !important; color: #111827 !important; font-weight: 600 !important; text-transform: uppercase; font-size: 0.75rem;}
+            td { border-bottom: 1px solid #E5E7EB !important; padding-top: 0.75rem !important; padding-bottom: 0.75rem !important; }
+            
+            /* Hide action column */
+            th:last-child, td:last-child { display: none !important; }
         }
     </style>
 </head>
-<body class="bg-dark text-gray-200 font-sans h-screen flex overflow-hidden selection:bg-gold selection:text-dark">
-
-    <!-- Modal Pengaturan Spreadsheet -->
-    <div id="settingsModal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden backdrop-blur-sm">
-        <div class="bg-panel w-full max-w-md p-6 rounded-xl border border-gray-700 shadow-2xl">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i class="ph ph-google-logo text-gold"></i> Setup Spreadsheet</h3>
-                <button onclick="toggleModal('settingsModal')" class="text-gray-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            <p class="text-sm text-textMuted mb-4">Masukkan URL Web App dari Google Apps Script untuk integrasi database.</p>
-            <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-dark border border-gray-700 rounded-lg p-3 text-sm focus:outline-none focus:border-gold mb-4 transition">
-            <div class="flex justify-end gap-2">
-                <button onclick="toggleModal('settingsModal')" class="px-4 py-2 text-sm bg-dark border border-gray-700 rounded-lg hover:bg-gray-800 transition">Batal</button>
-                <button onclick="saveSettings()" class="px-4 py-2 text-sm bg-gold text-dark font-semibold rounded-lg hover:bg-yellow-400 transition">Simpan URL</button>
-            </div>
-        </div>
-    </div>
+<body class="font-sans antialiased overflow-hidden h-screen flex">
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-panel border-r border-gray-800 flex flex-col justify-between transition-all duration-300">
+    <aside id="sidebar" class="w-64 bg-dark-800 border-r border-dark-border flex flex-col justify-between h-full z-20">
         <div>
-            <div class="h-20 flex items-center px-6 gap-3 border-b border-gray-800">
-                <div class="w-8 h-8 rounded bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center rotate-45 shadow-lg shadow-gold/20">
-                    <div class="-rotate-45 w-3 h-3 bg-dark rounded-sm"></div>
-                </div>
-                <h1 class="text-xl font-bold tracking-wide text-white">Wealth<span class="text-gold">Finance</span></h1>
+            <div class="p-6 flex items-center gap-3">
+                <div class="w-4 h-4 bg-brand-gold rotate-45"></div>
+                <h1 class="text-xl font-display font-bold text-white tracking-wide">WealthFinance</h1>
             </div>
-            <nav class="mt-6 flex flex-col gap-1 px-3">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-card">
-                    <i class="ph ph-squares-four text-xl"></i> Dashboard
+            
+            <nav class="mt-4 px-4 space-y-2">
+                <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-brand-gold bg-dark-700/50 transition-colors">
+                    <i class="fa-solid fa-border-all w-5"></i>
+                    <span class="font-medium">Dashboard</span>
                 </button>
-                <button onclick="switchTab('catat')" id="nav-catat" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-card">
-                    <i class="ph ph-plus-circle text-xl"></i> Catat Dana
+                <button onclick="navigate('catat')" id="nav-catat" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors">
+                    <i class="fa-solid fa-circle-plus w-5"></i>
+                    <span class="font-medium">Catat Dana</span>
                 </button>
-                <button onclick="switchTab('rekapitulasi')" id="nav-rekapitulasi" class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition text-gray-400 hover:text-white hover:bg-card">
-                    <i class="ph ph-file-text text-xl"></i> Rekapitulasi
+                <button onclick="navigate('rekap')" id="nav-rekap" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors">
+                    <i class="fa-solid fa-file-lines w-5"></i>
+                    <span class="font-medium">Rekapitulasi</span>
                 </button>
             </nav>
         </div>
-        <div class="p-4 border-t border-gray-800 flex flex-col gap-2">
-            <button onclick="syncData()" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-card transition w-full">
-                <i class="ph ph-arrows-clockwise text-lg" id="syncIcon"></i> Sinkronisasi
+
+        <div class="p-4 px-4 space-y-2 border-t border-dark-border">
+            <button onclick="syncData()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors">
+                <i class="fa-solid fa-rotate w-5" id="sync-icon"></i>
+                <span class="font-medium">Sinkronisasi</span>
             </button>
-            <button onclick="toggleModal('settingsModal')" class="flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-card transition w-full">
-                <i class="ph ph-gear text-lg"></i> Pengaturan
+            <button onclick="openSettings()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-dark-700 transition-colors">
+                <i class="fa-solid fa-gear w-5"></i>
+                <span class="font-medium">Pengaturan</span>
             </button>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <main id="main-content" class="flex-1 overflow-y-auto relative">
-        <!-- Toast Notification -->
-        <div id="toast" class="fixed top-5 right-5 bg-card border border-gold text-white px-4 py-3 rounded-lg shadow-xl transform translate-x-full transition-transform duration-300 z-50 flex items-center gap-3">
-            <i class="ph ph-check-circle text-gold text-xl"></i>
-            <span id="toastMsg" class="text-sm font-medium">Notifikasi</span>
-        </div>
-
+    <!-- Main Content Area -->
+    <main class="flex-1 h-full overflow-y-auto bg-dark-900 relative" id="main-content">
+        
         <!-- DASHBOARD VIEW -->
-        <section id="dashboard" class="p-8 pb-20">
-            <!-- Header Mobile Toggle -->
-            <div class="md:hidden flex justify-between items-center mb-6 no-print">
-                <h1 class="text-xl font-bold text-white">Wealth<span class="text-gold">Finance</span></h1>
-                <button class="text-gold"><i class="ph ph-list text-2xl"></i></button>
-            </div>
-
-            <!-- Top Cards: Balances -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Jatim -->
-                <div class="bg-card rounded-xl p-5 border-t-2 border-jatim shadow-lg relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 opacity-5 text-jatim group-hover:scale-110 transition duration-500"><i class="ph-fill ph-bank text-9xl"></i></div>
-                    <div class="flex justify-between items-start mb-4 relative z-10">
-                        <div>
-                            <p class="text-xs text-textMuted font-medium uppercase tracking-wider mb-1">Bank Jatim</p>
-                            <h2 class="text-2xl font-bold text-white" id="balJatim">Rp 0</h2>
-                            <p class="text-xs text-gray-500 mt-1">(Pusat Dana)</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-jatim/10 flex items-center justify-center text-jatim">
-                            <i class="ph-fill ph-bank text-xl"></i>
+        <div id="view-dashboard" class="p-8 max-w-7xl mx-auto space-y-6 block">
+            
+            <!-- Top Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Bank Jatim -->
+                <div class="card-elegant rounded-xl p-5 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fa-solid fa-building-columns text-6xl text-acc-jatim"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-medium text-gray-400">Bank Jatim</h3>
+                        <div class="w-8 h-8 rounded-full bg-acc-jatim/20 flex items-center justify-center text-acc-jatim">
+                            <i class="fa-solid fa-building-columns text-sm"></i>
                         </div>
                     </div>
+                    <h2 class="text-2xl font-display font-bold text-white mb-1" id="dash-bal-jatim">Rp 0</h2>
+                    <p class="text-xs text-gray-500">(Pusat Dana)</p>
                 </div>
+
                 <!-- Cash -->
-                <div class="bg-card rounded-xl p-5 border-t-2 border-cash shadow-lg relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 opacity-5 text-cash group-hover:scale-110 transition duration-500"><i class="ph-fill ph-wallet text-9xl"></i></div>
-                    <div class="flex justify-between items-start mb-4 relative z-10">
-                        <div>
-                            <p class="text-xs text-textMuted font-medium uppercase tracking-wider mb-1">Cash</p>
-                            <h2 class="text-2xl font-bold text-white" id="balCash">Rp 0</h2>
-                            <p class="text-xs text-gray-500 mt-1">(Dompet)</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-cash/10 flex items-center justify-center text-cash">
-                            <i class="ph-fill ph-wallet text-xl"></i>
+                <div class="card-elegant rounded-xl p-5 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fa-solid fa-wallet text-6xl text-acc-cash"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-medium text-gray-400">Cash</h3>
+                        <div class="w-8 h-8 rounded-full bg-acc-cash/20 flex items-center justify-center text-acc-cash">
+                            <i class="fa-solid fa-wallet text-sm"></i>
                         </div>
                     </div>
+                    <h2 class="text-2xl font-display font-bold text-white mb-1" id="dash-bal-cash">Rp 0</h2>
+                    <p class="text-xs text-gray-500">(Dompet)</p>
                 </div>
+
                 <!-- GoPay -->
-                <div class="bg-card rounded-xl p-5 border-t-2 border-gopay shadow-lg relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 opacity-5 text-gopay group-hover:scale-110 transition duration-500"><i class="ph-fill ph-device-mobile text-9xl"></i></div>
-                    <div class="flex justify-between items-start mb-4 relative z-10">
-                        <div>
-                            <p class="text-xs text-textMuted font-medium uppercase tracking-wider mb-1">GoPay</p>
-                            <h2 class="text-2xl font-bold text-white" id="balGopay">Rp 0</h2>
-                            <p class="text-xs text-gray-500 mt-1">(e-Wallet)</p>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-gopay/10 flex items-center justify-center text-gopay">
-                            <i class="ph-fill ph-device-mobile text-xl"></i>
+                <div class="card-elegant rounded-xl p-5 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fa-solid fa-mobile-screen text-6xl text-acc-gopay"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-medium text-gray-400">GoPay</h3>
+                        <div class="w-8 h-8 rounded-full bg-acc-gopay/20 flex items-center justify-center text-acc-gopay">
+                            <i class="fa-solid fa-mobile-screen text-sm"></i>
                         </div>
                     </div>
+                    <h2 class="text-2xl font-display font-bold text-white mb-1" id="dash-bal-gopay">Rp 0</h2>
+                    <p class="text-xs text-gray-500">(e-Wallet)</p>
                 </div>
+
                 <!-- SeaBank -->
-                <div class="bg-card rounded-xl p-5 border-t-2 border-seabank shadow-lg relative overflow-hidden group">
-                    <div class="absolute -right-4 -top-4 opacity-5 text-seabank group-hover:scale-110 transition duration-500"><i class="ph-fill ph-piggy-bank text-9xl"></i></div>
-                    <div class="flex justify-between items-start mb-4 relative z-10">
-                        <div>
-                            <p class="text-xs text-textMuted font-medium uppercase tracking-wider mb-1">SeaBank</p>
-                            <h2 class="text-2xl font-bold text-white" id="balSeabank">Rp 0</h2>
-                            <p class="text-xs text-gray-500 mt-1">(Saving)</p>
+                <div class="card-elegant rounded-xl p-5 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <i class="fa-solid fa-piggy-bank text-6xl text-acc-seabank"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-sm font-medium text-gray-400">SeaBank</h3>
+                        <div class="w-8 h-8 rounded-full bg-acc-seabank/20 flex items-center justify-center text-acc-seabank">
+                            <i class="fa-solid fa-piggy-bank text-sm"></i>
                         </div>
-                        <div class="w-10 h-10 rounded-full bg-seabank/10 flex items-center justify-center text-seabank">
-                            <i class="ph-fill ph-piggy-bank text-xl"></i>
-                        </div>
+                    </div>
+                    <h2 class="text-2xl font-display font-bold text-white mb-1" id="dash-bal-seabank">Rp 0</h2>
+                    <p class="text-xs text-gray-500">(Saving)</p>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <!-- Bar Chart -->
+                <div class="card-elegant rounded-xl p-5">
+                    <h3 class="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-brand-gold"></i> Grafik Pengeluaran
+                    </h3>
+                    <div class="h-48 w-full">
+                        <canvas id="chart-expenses"></canvas>
+                    </div>
+                </div>
+                <!-- Doughnut Pusat -->
+                <div class="card-elegant rounded-xl p-5 flex flex-col items-center justify-center relative">
+                    <h3 class="absolute top-5 left-5 text-sm font-medium text-gray-400">Pusat Dana</h3>
+                    <div class="h-32 w-32 mt-4 relative">
+                        <canvas id="chart-pusat"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-gray-500">Total Pemasukan</p>
+                        <h4 class="text-lg font-bold text-white" id="dash-tot-income">Rp 0</h4>
+                    </div>
+                </div>
+                <!-- Doughnut Total -->
+                <div class="card-elegant rounded-xl p-5 flex flex-col items-center justify-center relative">
+                    <h3 class="absolute top-5 left-5 text-sm font-medium text-gray-400">Dana Total</h3>
+                    <div class="h-32 w-32 mt-4">
+                        <canvas id="chart-total"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-gray-500">Total Saldo Aktif</p>
+                        <h4 class="text-lg font-bold text-white" id="dash-tot-saldo">Rp 0</h4>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <!-- Bar Chart: Pengeluaran -->
-                <div class="bg-card rounded-xl p-5 border border-gray-800 shadow-lg col-span-1">
-                    <h3 class="text-sm font-semibold mb-4 text-white flex items-center gap-2"><i class="ph-fill ph-chart-bar text-gold"></i> Grafik Pengeluaran</h3>
-                    <div class="h-48 w-full"><canvas id="barChart"></canvas></div>
-                </div>
-                <!-- Doughnut 1: Pusat Dana -->
-                <div class="bg-card rounded-xl p-5 border border-gray-800 shadow-lg col-span-1 flex flex-col items-center justify-center relative">
-                    <h3 class="text-sm font-semibold mb-2 text-white self-start">Pusat Dana</h3>
-                    <div class="h-40 w-40 relative">
-                        <canvas id="donutJatim"></canvas>
-                    </div>
-                    <div class="text-center mt-2">
-                        <p class="text-xs text-textMuted">Total Pemasukan Bank Jatim</p>
-                        <p class="text-lg font-bold text-white" id="lblTotalJatimIn">Rp 0</p>
-                    </div>
-                </div>
-                <!-- Doughnut 2: Dana Total -->
-                <div class="bg-card rounded-xl p-5 border border-gray-800 shadow-lg col-span-1 flex flex-col items-center justify-center relative">
-                    <h3 class="text-sm font-semibold mb-2 text-white self-start">Dana Total Pengeluaran</h3>
-                    <div class="h-40 w-40 relative">
-                        <canvas id="donutTotal"></canvas>
-                    </div>
-                    <div class="text-center mt-2">
-                        <p class="text-xs text-textMuted">Total Pengeluaran Keseluruhan</p>
-                        <p class="text-lg font-bold text-white" id="lblTotalExp">Rp 0</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Rincian Pengeluaran Per Kategori -->
-            <div class="bg-card rounded-xl p-6 border border-gray-800 shadow-lg mb-8">
-                <h3 class="text-sm font-semibold mb-6 text-white flex items-center gap-2 border-b border-gray-800 pb-3"><i class="ph-fill ph-stack text-gold"></i> Rincian Pengeluaran per Kategori</h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8" id="rincianKategoriContainer">
-                    <!-- Dinamis diisi JS -->
+            <!-- Rincian Pengeluaran per Kategori -->
+            <div class="card-elegant rounded-xl p-5">
+                <h3 class="text-sm font-medium text-gray-400 mb-6 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-brand-gold"></i> Rincian Pengeluaran per Kategori
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="rincian-kategori-container">
+                    <!-- Populated by JS -->
                 </div>
             </div>
 
             <!-- Transaksi Terakhir -->
-            <div class="bg-card rounded-xl border border-gray-800 shadow-lg overflow-hidden">
-                <div class="p-5 border-b border-gray-800 flex justify-between items-center">
-                    <h3 class="text-sm font-semibold text-white flex items-center gap-2"><i class="ph-fill ph-clock-counter-clockwise text-gold"></i> Transaksi Terakhir</h3>
-                    <button onclick="switchTab('rekapitulasi')" class="text-xs text-gold hover:text-yellow-400 transition flex items-center gap-1">Lihat Semua <i class="ph ph-arrow-right"></i></button>
+            <div class="card-elegant rounded-xl p-5">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-sm font-medium text-gray-400 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-brand-gold"></i> Transaksi Terakhir
+                    </h3>
+                    <button onclick="navigate('rekap')" class="text-xs text-brand-gold hover:text-brand-goldHover transition-colors">Lihat Semua <i class="fa-solid fa-arrow-right ml-1"></i></button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-dark/50 text-xs text-gray-500 uppercase tracking-wider">
-                                <th class="p-4 font-medium">Tanggal</th>
-                                <th class="p-4 font-medium">Kategori</th>
-                                <th class="p-4 font-medium">Detail</th>
-                                <th class="p-4 font-medium text-right">Nominal</th>
-                                <th class="p-4 font-medium text-center w-16">Aksi</th>
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-gray-500 uppercase border-b border-dark-border">
+                            <tr>
+                                <th class="pb-3 font-medium">Tanggal</th>
+                                <th class="pb-3 font-medium">Kategori</th>
+                                <th class="pb-3 font-medium">Detail</th>
+                                <th class="pb-3 font-medium text-right">Nominal</th>
+                                <th class="pb-3 font-medium text-center w-10">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tblRecentTx" class="text-sm divide-y divide-gray-800">
-                            <!-- Dinamis via JS -->
+                        <tbody id="dash-trx-table" class="divide-y divide-dark-border/50">
+                            <!-- Populated by JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- CATAT DANA VIEW -->
-        <section id="catat" class="p-8 pb-20 hidden">
-            <div class="mb-6">
-                <h2 class="text-2xl font-bold text-white mb-1">Catat Transaksi</h2>
-                <p class="text-sm text-textMuted">Rekam pemasukan, pengeluaran, atau alokasi dana.</p>
+        <div id="view-catat" class="p-8 max-w-7xl mx-auto hidden">
+            <div class="mb-8">
+                <h2 class="text-2xl font-display font-bold text-white">Catat Transaksi</h2>
+                <p class="text-sm text-gray-400 mt-1">Rekam pemasukan, pengeluaran, atau alokasi dana.</p>
             </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <div class="flex flex-col lg:flex-row gap-6">
                 <!-- Form -->
-                <div class="lg:col-span-5 bg-card rounded-xl border border-gray-800 shadow-lg p-6 h-fit">
-                    <form id="formCatat" onsubmit="saveTransaction(event)">
-                        <input type="hidden" id="editId" value="">
-                        <div class="mb-4">
-                            <label class="block text-xs text-gray-400 mb-2">Tanggal</label>
-                            <div class="relative">
-                                <input type="date" id="txDate" required class="w-full bg-dark border border-gray-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-gold transition appearance-none">
+                <div class="w-full lg:w-1/3">
+                    <div class="card-elegant rounded-xl p-6">
+                        <form id="form-catat" onsubmit="handleSimpan(event)">
+                            <input type="hidden" id="input-id">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1">Tanggal</label>
+                                    <div class="relative">
+                                        <input type="date" id="input-tanggal" required class="w-full bg-dark-900 border border-dark-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-colors" style="color-scheme: dark;">
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1">Kategori</label>
+                                    <select id="input-kategori" required class="w-full bg-dark-900 border border-dark-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold appearance-none transition-colors">
+                                        <option value="" disabled selected>Pilih Kategori...</option>
+                                        <optgroup label="Pemasukan Pusat">
+                                            <option value="Salary">Salary</option>
+                                            <option value="Bunga">Bunga</option>
+                                        </optgroup>
+                                        <optgroup label="Alokasi Pusat (Keluar)">
+                                            <option value="Cash">Transfer ke Cash</option>
+                                            <option value="GoPay">Transfer ke GoPay</option>
+                                            <option value="SeaBank">Transfer ke SeaBank</option>
+                                            <option value="Tax">Tax (Pajak)</option>
+                                        </optgroup>
+                                        <optgroup label="Pemasukan Tambahan">
+                                            <option value="Extra">Extra (Cash)</option>
+                                            <option value="Receivable">Receivable (Cash)</option>
+                                            <option value="Allowance">Allowance (GoPay)</option>
+                                            <option value="Interest">Interest (GoPay)</option>
+                                            <option value="Return">Return (SeaBank)</option>
+                                        </optgroup>
+                                        <optgroup label="Pengeluaran Cash">
+                                            <option value="B&F">B&F</option>
+                                            <option value="BBM">BBM</option>
+                                            <option value="Baby Gear">Baby Gear</option>
+                                            <option value="StayCation">StayCation</option>
+                                            <option value="Transport">Transport</option>
+                                            <option value="Services">Services</option>
+                                            <option value="Medicine">Medicine</option>
+                                            <option value="MotorTax">MotorTax</option>
+                                            <option value="Edible">Edible</option>
+                                            <option value="Hidden Cost">Hidden Cost</option>
+                                        </optgroup>
+                                        <optgroup label="Pengeluaran GoPay">
+                                            <option value="PLN">PLN</option>
+                                            <option value="BPJS">BPJS</option>
+                                            <option value="PDAM">PDAM</option>
+                                            <option value="Internet">Internet</option>
+                                            <option value="OnLine">OnLine</option>
+                                            <option value="Plausible">Plausible</option>
+                                        </optgroup>
+                                        <optgroup label="Pengeluaran SeaBank">
+                                            <option value="ShopCart">ShopCart</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1">Nominal</label>
+                                    <div class="relative">
+                                        <span class="absolute left-4 top-2.5 text-gray-500 text-sm">Rp</span>
+                                        <input type="text" id="input-nominal" required placeholder="1.000.000" oninput="formatRupiahInput(this)" class="w-full bg-dark-900 border border-dark-border rounded-lg pl-10 pr-4 py-2.5 text-white text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-colors">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-400 mb-1">Detail / Keterangan</label>
+                                    <textarea id="input-detail" rows="3" placeholder="Tulis rincian..." required class="w-full bg-dark-900 border border-dark-border rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold resize-none transition-colors"></textarea>
+                                </div>
+
+                                <div class="flex gap-3 pt-2">
+                                    <button type="submit" class="flex-1 bg-brand-gold hover:bg-brand-goldHover text-dark-900 font-bold py-2.5 rounded-lg text-sm transition-colors shadow-[0_0_15px_rgba(251,191,36,0.3)]">
+                                        Simpan Transaksi
+                                    </button>
+                                    <button type="button" onclick="resetForm()" class="px-6 bg-dark-700 hover:bg-gray-600 text-white font-medium py-2.5 rounded-lg text-sm transition-colors border border-dark-border">
+                                        Batal
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-xs text-gray-400 mb-2">Kategori</label>
-                            <select id="txCategory" required class="w-full bg-dark border border-gray-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-gold transition appearance-none cursor-pointer">
-                                <option value="" disabled selected>Pilih Kategori...</option>
-                                <optgroup label="Pemasukan Pusat (Bank Jatim)">
-                                    <option value="Salary">Salary</option>
-                                    <option value="Bunga">Bunga</option>
-                                </optgroup>
-                                <optgroup label="Alokasi & Potongan (Bank Jatim)">
-                                    <option value="Alokasi Cash">Alokasi Cash</option>
-                                    <option value="Alokasi GoPay">Alokasi GoPay</option>
-                                    <option value="Alokasi SeaBank">Alokasi SeaBank</option>
-                                    <option value="Tax">Tax</option>
-                                </optgroup>
-                                <optgroup label="Pemasukan Dompet (Cash)">
-                                    <option value="Extra">Extra</option>
-                                    <option value="Receivable">Receivable</option>
-                                </optgroup>
-                                <optgroup label="Pengeluaran Dompet (Cash)">
-                                    <option value="B&F">B&F</option>
-                                    <option value="BBM">BBM</option>
-                                    <option value="Baby Gear">Baby Gear</option>
-                                    <option value="StayCation">StayCation</option>
-                                    <option value="Transport">Transport</option>
-                                    <option value="Services">Services</option>
-                                    <option value="Medicine">Medicine</option>
-                                    <option value="MotorTax">Pajak Motor</option>
-                                    <option value="Hidden Cost">Hidden Cost</option>
-                                    <option value="Edible">Edible</option>
-                                </optgroup>
-                                <optgroup label="Pemasukan e-Wallet (GoPay)">
-                                    <option value="Allowance">Allowance</option>
-                                    <option value="Interest">Interest</option>
-                                </optgroup>
-                                <optgroup label="Pengeluaran e-Wallet (GoPay)">
-                                    <option value="PLN">PLN</option>
-                                    <option value="BPJS">BPJS</option>
-                                    <option value="PDAM">PDAM</option>
-                                    <option value="Internet">Internet</option>
-                                    <option value="OnLine">OnLine</option>
-                                    <option value="Plausible">Plausible</option>
-                                </optgroup>
-                                <optgroup label="Pemasukan Saving (SeaBank)">
-                                    <option value="Return">Return</option>
-                                </optgroup>
-                                <optgroup label="Pengeluaran Saving (SeaBank)">
-                                    <option value="ShopCart">ShopCart</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-xs text-gray-400 mb-2">Nominal</label>
-                            <div class="relative flex items-center">
-                                <span class="absolute left-3 text-gray-500 text-sm">Rp</span>
-                                <input type="text" id="txNominal" required placeholder="1.000.000" class="w-full bg-dark border border-gray-700 rounded-lg p-3 pl-10 text-sm text-white focus:outline-none focus:border-gold transition font-medium">
-                            </div>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-xs text-gray-400 mb-2">Detail / Keterangan</label>
-                            <textarea id="txDetail" rows="3" placeholder="Tulis rincian..." class="w-full bg-dark border border-gray-700 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-gold transition resize-none"></textarea>
-                        </div>
-                        <div class="flex gap-3">
-                            <button type="submit" class="flex-1 bg-gold hover:bg-yellow-500 text-dark font-bold py-3 px-4 rounded-lg transition shadow-lg shadow-gold/20" id="btnSave">Simpan Transaksi</button>
-                            <button type="button" onclick="resetForm()" class="px-6 bg-dark hover:bg-gray-800 border border-gray-700 text-white font-medium rounded-lg transition">Batal</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Histori Form Side -->
-                <div class="lg:col-span-7 bg-card rounded-xl border border-gray-800 shadow-lg overflow-hidden flex flex-col">
-                    <div class="p-5 border-b border-gray-800">
-                        <h3 class="text-sm font-semibold text-white">Histori Transaksi</h3>
+                        </form>
                     </div>
-                    <div class="flex-1 overflow-y-auto max-h-[600px]">
-                        <table class="w-full text-left">
-                            <tbody id="tblSideHistory" class="text-sm divide-y divide-gray-800">
-                                <!-- Dinamis via JS -->
-                            </tbody>
-                        </table>
+                </div>
+
+                <!-- History -->
+                <div class="w-full lg:w-2/3">
+                    <div class="card-elegant rounded-xl p-6 h-full flex flex-col">
+                        <h3 class="text-sm font-medium text-white mb-6">Histori Transaksi</h3>
+                        <div class="flex-1 overflow-y-auto pr-2">
+                            <table class="w-full text-sm text-left">
+                                <tbody id="catat-trx-table" class="divide-y divide-dark-border/50">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
 
         <!-- REKAPITULASI VIEW -->
-        <section id="rekapitulasi" class="p-8 pb-20 hidden print:p-0 print:block">
-            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:hidden">
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-1">Rekapitulasi Dana</h2>
-                    <p class="text-sm text-textMuted">Laporan bulanan pengeluaran dan surplus.</p>
+        <div id="view-rekap" class="p-8 max-w-7xl mx-auto hidden">
+            <!-- Header for Print & Screen -->
+            <div class="mb-8">
+                <div class="print-text-dark text-white print-bg-white print-pb-4 print-border-b">
+                    <h2 class="text-2xl font-display font-bold">Rekapitulasi Dana</h2>
+                    <p class="text-sm text-gray-400 print-text-gray mt-1">Laporan bulanan pengeluaran dan surplus.</p>
                 </div>
-                <div class="flex items-center gap-3 relative">
-                    <!-- Custom Month Picker -->
+                
+                <!-- Controls (Hidden on print) -->
+                <div id="header-controls" class="flex justify-end gap-3 mt-4 -mt-12">
                     <div class="relative">
-                        <button onclick="toggleMonthDropdown()" class="bg-card border border-gray-700 hover:border-gold text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
-                            <span id="btnMonthLabel">April 2026</span> <i class="ph ph-calendar-blank text-gray-400"></i>
-                        </button>
-                        <!-- Dropdown -->
-                        <div id="monthDropdown" class="absolute right-0 mt-2 w-64 bg-panel border border-gray-700 rounded-xl shadow-2xl hidden z-50 p-4">
-                            <div class="flex justify-between items-center mb-4 text-white">
-                                <button onclick="changeYear(-1)" class="hover:text-gold"><i class="ph ph-caret-left"></i></button>
-                                <span id="dropYear" class="font-bold text-sm">2026</span>
-                                <button onclick="changeYear(1)" class="hover:text-gold"><i class="ph ph-caret-right"></i></button>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 text-center text-sm" id="monthGrid">
-                                <!-- JS Fills this -->
-                            </div>
-                        </div>
+                        <input type="month" id="filter-month" onchange="renderRekapitulasi()" class="bg-dark-900 border border-dark-border rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-brand-gold cursor-pointer" style="color-scheme: dark;">
                     </div>
-                    <button onclick="window.print()" class="bg-card border border-gray-700 hover:text-white hover:border-white text-gray-300 px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
-                        <i class="ph ph-printer"></i> Cetak
+                    <button onclick="window.print()" class="bg-dark-800 border border-dark-border hover:bg-dark-700 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> Cetak
                     </button>
                 </div>
             </div>
 
-            <!-- Print Header (Only visible in Print) -->
-            <div class="hidden print:block mb-6">
-                <h1 class="print-title">Rekapitulasi Dana</h1>
-                <p class="print-subtitle" id="printSubtitle">Laporan bulanan pengeluaran dan surplus.</p>
-            </div>
-
             <!-- Summary Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 print:flex print:gap-4 print:mb-6">
-                <div class="bg-card rounded-xl p-6 border border-gray-800 shadow-lg card-print print:flex-1">
-                    <p class="text-sm text-gray-400 mb-1">Total Saldo Aktif Saat Ini</p>
-                    <h2 class="text-2xl font-bold text-white" id="rekapSaldoAktif">Rp 0</h2>
+            <div id="rekap-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="card-elegant rounded-xl p-6 print-border">
+                    <h3 class="text-sm font-medium text-gray-400 print-text-gray mb-2">Total Saldo Aktif Saat Ini</h3>
+                    <h2 class="text-3xl font-display font-bold text-white print-text-dark" id="rekap-saldo">Rp 0</h2>
                 </div>
-                <div class="bg-card rounded-xl p-6 border border-gray-800 border-l-4 border-l-red-500 shadow-lg card-print print:flex-1">
-                    <p class="text-sm text-gray-400 mb-1" id="lblRekapPengeluaran">Total Pengeluaran April 2026</p>
-                    <h2 class="text-2xl font-bold text-white" id="rekapPengeluaran">Rp 0</h2>
+                <div class="card-elegant rounded-xl p-6 print-border">
+                    <h3 class="text-sm font-medium text-gray-400 print-text-gray mb-2" id="rekap-pengeluaran-title">Total Pengeluaran</h3>
+                    <h2 class="text-3xl font-display font-bold text-white print-text-dark" id="rekap-pengeluaran">Rp 0</h2>
                 </div>
-                <div class="bg-card rounded-xl p-6 border border-gray-800 border-l-4 border-l-green-500 shadow-lg card-print print:flex-1">
-                    <p class="text-sm text-gray-400 mb-1">Surplus</p>
-                    <h2 class="text-2xl font-bold text-green-400" id="rekapSurplus">+Rp 0</h2>
+                <div class="card-elegant rounded-xl p-6 print-border">
+                    <h3 class="text-sm font-medium text-gray-400 print-text-gray mb-2">Surplus</h3>
+                    <h2 class="text-3xl font-display font-bold text-acc-cash" id="rekap-surplus">+Rp 0</h2>
                 </div>
             </div>
 
-            <!-- Table Rekap -->
-            <div class="bg-card rounded-xl border border-gray-800 shadow-lg overflow-hidden card-print">
-                <div class="p-5 border-b border-gray-800 print:border-b-2 print:border-gray-300">
-                    <h3 class="text-sm font-semibold text-white print:text-black" id="lblTableRekap">Rincian Transaksi Bulan April 2026</h3>
-                </div>
+            <!-- Table -->
+            <div id="rekap-table-container" class="card-elegant rounded-xl p-6 print-bg-white">
+                <h3 class="text-sm font-bold text-white print-text-dark mb-4" id="rekap-table-title">Rincian Transaksi Bulan ...</h3>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse print-table">
-                        <thead>
-                            <tr class="bg-dark/50 text-xs text-gray-500 uppercase tracking-wider print:bg-gray-100 print:text-black">
-                                <th class="p-4 font-medium">Tanggal</th>
-                                <th class="p-4 font-medium">Kategori</th>
-                                <th class="p-4 font-medium">Detail</th>
-                                <th class="p-4 font-medium text-right print-text-right">Nominal</th>
-                                <th class="p-4 font-medium text-center w-16 no-print">Aksi</th>
+                    <table class="w-full text-sm text-left">
+                        <thead class="text-xs text-gray-500 print-text-dark uppercase border-b border-dark-border print-border">
+                            <tr>
+                                <th class="pb-3 font-medium">Tanggal</th>
+                                <th class="pb-3 font-medium">Kategori</th>
+                                <th class="pb-3 font-medium">Detail</th>
+                                <th class="pb-3 font-medium text-right">Nominal</th>
+                                <th class="pb-3 font-medium text-center w-10 no-print">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="tblRekap" class="text-sm divide-y divide-gray-800 print:divide-gray-200">
-                            <!-- Dinamis via JS -->
+                        <tbody id="rekap-trx-table" class="divide-y divide-dark-border/50 print-border">
+                            <!-- Populated by JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
-        </section>
+        </div>
+
     </main>
 
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="bg-dark-800 border border-dark-border rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h2 class="text-xl font-bold text-white mb-4">Pengaturan Integrasi</h2>
+            <p class="text-xs text-gray-400 mb-4">Masukkan URL Web App dari Google Apps Script untuk sinkronisasi data.</p>
+            <input type="text" id="input-script-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-dark-900 border border-dark-border rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-gold mb-4">
+            <div class="flex justify-end gap-3">
+                <button onclick="closeSettings()" class="px-4 py-2 rounded-lg text-sm text-gray-300 hover:bg-dark-700 transition-colors">Batal</button>
+                <button onclick="saveSettings()" class="px-4 py-2 rounded-lg text-sm bg-brand-gold text-dark-900 font-bold hover:bg-brand-goldHover transition-colors">Simpan URL</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- DATA & CONFIGURATION ---
-        const colors = {
-            jatim: '#c41b38', cash: '#26bad1', gopay: '#1bc470', seabank: '#f97316',
-            income: '#1bc470', expense: '#ef4444', textMuted: '#8b9bb4'
+        // --- CONSTANTS & CONFIG ---
+        const CAT_COLORS = {
+            'Bank Jatim': '#c41b38', 'Cash': '#8b9bb4', 'GoPay': '#1bc470', 'SeaBank': '#8b9bb4',
+            // Assign subcategories to parent colors for UI consistency
+            'Salary': '#c41b38', 'Bunga': '#c41b38', 'Tax': '#c41b38',
+            'Extra': '#8b9bb4', 'Receivable': '#8b9bb4', 'B&F': '#8b9bb4', 'BBM': '#8b9bb4', 'Baby Gear': '#8b9bb4', 'StayCation': '#8b9bb4', 'Transport': '#8b9bb4', 'Services': '#8b9bb4', 'Medicine': '#8b9bb4', 'MotorTax': '#8b9bb4', 'Edible': '#8b9bb4', 'Hidden Cost': '#8b9bb4',
+            'Allowance': '#1bc470', 'Interest': '#1bc470', 'PLN': '#1bc470', 'BPJS': '#1bc470', 'PDAM': '#1bc470', 'Internet': '#1bc470', 'OnLine': '#1bc470', 'Plausible': '#1bc470',
+            'Return': '#8b9bb4', 'ShopCart': '#8b9bb4'
         };
 
-        // Categorization rules mapping
-        const catMap = {
-            'Salary': { type: 'in', account: 'jatim' }, 'Bunga': { type: 'in', account: 'jatim' },
-            'Alokasi Cash': { type: 'alokasi', account: 'jatim', target: 'cash' },
-            'Alokasi GoPay': { type: 'alokasi', account: 'jatim', target: 'gopay' },
-            'Alokasi SeaBank': { type: 'alokasi', account: 'jatim', target: 'seabank' },
-            'Tax': { type: 'out', account: 'jatim' },
-            'Extra': { type: 'in', account: 'cash' }, 'Receivable': { type: 'in', account: 'cash' },
-            'B&F': { type: 'out', account: 'cash' }, 'BBM': { type: 'out', account: 'cash' },
-            'Baby Gear': { type: 'out', account: 'cash' }, 'StayCation': { type: 'out', account: 'cash' },
-            'Transport': { type: 'out', account: 'cash' }, 'Services': { type: 'out', account: 'cash' },
-            'Medicine': { type: 'out', account: 'cash' }, 'MotorTax': { type: 'out', account: 'cash' },
-            'Hidden Cost': { type: 'out', account: 'cash' }, 'Edible': { type: 'out', account: 'cash' },
-            'Allowance': { type: 'in', account: 'gopay' }, 'Interest': { type: 'in', account: 'gopay' },
-            'PLN': { type: 'out', account: 'gopay' }, 'BPJS': { type: 'out', account: 'gopay' },
-            'PDAM': { type: 'out', account: 'gopay' }, 'Internet': { type: 'out', account: 'gopay' },
-            'OnLine': { type: 'out', account: 'gopay' }, 'Plausible': { type: 'out', account: 'gopay' },
-            'Return': { type: 'in', account: 'seabank' },
-            'ShopCart': { type: 'out', account: 'seabank' }
+        const CATEGORY_MAP = {
+            income_pusat: ['Salary', 'Bunga'],
+            transfer_out_pusat: ['Cash', 'GoPay', 'SeaBank', 'Tax'], // Cash/GoPay/SeaBank here means transfer TO them.
+            income_cash: ['Extra', 'Receivable'], 
+            expense_cash: ['B&F', 'BBM', 'Baby Gear', 'StayCation', 'Transport', 'Services', 'Medicine', 'MotorTax', 'Edible', 'Hidden Cost'],
+            income_gopay: ['Allowance', 'Interest'],
+            expense_gopay: ['PLN', 'BPJS', 'PDAM', 'Internet', 'OnLine', 'Plausible'],
+            income_seabank: ['Return'],
+            expense_seabank: ['ShopCart']
         };
 
-        // Month Names
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        // --- STATE MANAGEMENT ---
+        let transactions = [];
+        let balances = { jatim: 0, cash: 0, gopay: 0, seabank: 0 };
+        let charts = {};
 
-        // Initial Dummy Data to match images
-        let transactions = [
-            { id: 1, date: '2026-04-03', category: 'B&F', nominal: 14000, detail: 'Beli Nasi Goreng' },
-            { id: 2, date: '2026-04-03', category: 'Baby Gear', nominal: 150000, detail: 'Diapers Makuku M, L & SUN Beras Merah' },
-            { id: 3, date: '2026-04-03', category: 'Alokasi Cash', nominal: 500000, detail: 'Uang Saku Harian' },
-            { id: 4, date: '2026-04-02', category: 'OnLine', nominal: 101000, detail: 'TopUp Saldo e-Toll BNI' },
-            { id: 5, date: '2026-04-02', category: 'Allowance', nominal: 1102000, detail: 'Transfer dari Rewwin' },
-            { id: 6, date: '2026-04-02', category: 'PLN', nominal: 114731, detail: 'PLN Rumah Rewwin' },
-            { id: 7, date: '2026-04-02', category: 'BPJS', nominal: 106500, detail: 'BPJS Rewwin' },
-            { id: 8, date: '2026-04-02', category: 'PDAM', nominal: 662200, detail: 'PDAM Rumah Rewwin' },
-            { id: 9, date: '2026-04-01', category: 'BPJS', nominal: 36500, detail: 'BPJS Setro' },
-            { id: 10, date: '2026-04-01', category: 'PLN', nominal: 521616, detail: 'PLN Rumah Rewwin' },
-            { id: 11, date: '2026-04-01', category: 'Salary', nominal: 4888425, detail: 'Gaji Bulan April' },
-            { id: 12, date: '2026-03-31', category: 'Alokasi SeaBank', nominal: 200000, detail: 'Saving Maret' },
-            { id: 13, date: '2026-03-30', category: 'B&F', nominal: 15000, detail: 'Beli Sarapan di Teratai' }
+        // Mock Initial Data for Preview
+        const mockData = [
+            { id: 1, tanggal: "2026-04-01", kategori: "Salary", detail: "Gaji Bulan April", nominal: 4888425 },
+            { id: 2, tanggal: "2026-04-01", kategori: "PLN", detail: "PLN Rumah Rewwin", nominal: 521616 },
+            { id: 3, tanggal: "2026-04-01", kategori: "BPJS", detail: "BPJS Setro", nominal: 36500 },
+            { id: 4, tanggal: "2026-04-02", kategori: "PDAM", detail: "PDAM Rumah Rewwin", nominal: 662200 },
+            { id: 5, tanggal: "2026-04-02", kategori: "BPJS", detail: "BPJS Rewwin", nominal: 106500 },
+            { id: 6, tanggal: "2026-04-02", kategori: "GoPay", detail: "Transfer dari Rewwin (Allowance)", nominal: 1102000 },
+            { id: 7, tanggal: "2026-04-02", kategori: "OnLine", detail: "TopUp Saldo e-Toll BNI", nominal: 101000 },
+            { id: 8, tanggal: "2026-04-03", kategori: "B&F", detail: "Beli Nasi Goreng", nominal: 14000 },
+            { id: 9, tanggal: "2026-04-03", kategori: "Cash", detail: "Uang Saku Harian (Alokasi)", nominal: 500000 },
+            { id: 10, tanggal: "2026-04-03", kategori: "Baby Gear", detail: "Diapers Makuku", nominal: 150000 }
         ];
 
-        let currentFilterYear = 2026;
-        let currentFilterMonth = 3; // April (0-indexed)
-
-        // Global Chart Instances
-        let chartBar, chartDonutJatim, chartDonutTotal;
-
-        // --- UTILITIES ---
-        const formatRp = (num) => 'Rp ' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        const parseRp = (str) => parseInt(str.replace(/[^0-9]/g, '')) || 0;
-        const formatDate = (dateStr) => {
-            const d = new Date(dateStr);
-            return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
-        };
-        const getCatColor = (cat) => {
-            const ac = catMap[cat]?.account;
-            return ac ? colors[ac] : '#ffffff';
+        // --- UTILS ---
+        const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+        
+        const formatDateText = (dateStr) => {
+            const date = new Date(dateStr);
+            return new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
         };
 
-        // --- UI NAVIGATION ---
-        function switchTab(tabId) {
-            ['dashboard', 'catat', 'rekapitulasi'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-                document.getElementById(`nav-${id}`).classList.remove('nav-active');
-            });
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById(`nav-${tabId}`).classList.add('nav-active');
-            if(tabId === 'dashboard') updateDashboard();
-            if(tabId === 'rekapitulasi') updateRekapitulasi();
-        }
+        const parseIDR = (str) => parseInt(str.replace(/[^0-9]/g, '')) || 0;
 
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.classList.toggle('hidden');
-            if(!modal.classList.contains('hidden') && id === 'settingsModal') {
-                document.getElementById('scriptUrl').value = localStorage.getItem('sheetUrl') || '';
+        function formatRupiahInput(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if(val !== "") {
+                val = parseInt(val, 10).toLocaleString('id-ID');
+                input.value = val;
+            } else {
+                input.value = "";
             }
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.remove('translate-x-full');
-            setTimeout(() => toast.classList.add('translate-x-full'), 3000);
-        }
+        const isExpense = (cat) => {
+            return CATEGORY_MAP.expense_cash.includes(cat) || 
+                   CATEGORY_MAP.expense_gopay.includes(cat) || 
+                   CATEGORY_MAP.expense_seabank.includes(cat) || 
+                   cat === 'Tax';
+        };
 
-        // --- CORE LOGIC & CALCULATION ---
+        const isTransferOutPusat = (cat) => CATEGORY_MAP.transfer_out_pusat.includes(cat);
+        const isIncome = (cat) => CATEGORY_MAP.income_pusat.includes(cat) || CATEGORY_MAP.income_cash.includes(cat) || CATEGORY_MAP.income_gopay.includes(cat) || CATEGORY_MAP.income_seabank.includes(cat);
+
+        // --- CORE LOGIC ---
         function calculateBalances() {
-            let bal = { jatim: 0, cash: 0, gopay: 0, seabank: 0 };
+            balances = { jatim: 0, cash: 0, gopay: 0, seabank: 0 };
             
-            // Urutkan transaksi dari terlama ke terbaru (id)
-            const sortedTx = [...transactions].sort((a,b) => new Date(a.date) - new Date(b.date));
+            transactions.forEach(t => {
+                const nom = parseInt(t.nominal);
+                const cat = t.kategori;
 
-            sortedTx.forEach(tx => {
-                const rules = catMap[tx.category];
-                if(!rules) return;
-
-                if (rules.type === 'in') {
-                    bal[rules.account] += tx.nominal;
-                } else if (rules.type === 'out') {
-                    bal[rules.account] -= tx.nominal;
-                } else if (rules.type === 'alokasi') {
-                    bal[rules.account] -= tx.nominal;
-                    bal[rules.target] += tx.nominal;
-                }
-            });
-            return bal;
-        }
-
-        function calculateExpenses() {
-            let exp = { jatim: 0, cash: 0, gopay: 0, seabank: 0 };
-            let catExp = {}; // { 'B&F': 50000, ... }
-            
-            transactions.forEach(tx => {
-                const rules = catMap[tx.category];
-                if(!rules) return;
+                // Income Pusat
+                if (CATEGORY_MAP.income_pusat.includes(cat)) balances.jatim += nom;
                 
-                // yang dihitung pengeluaran chart adalah murni keluar
-                if (rules.type === 'out') {
-                    exp[rules.account] += tx.nominal;
-                    catExp[tx.category] = (catExp[tx.category] || 0) + tx.nominal;
-                }
+                // Transfers from Pusat to Wallets
+                if (cat === 'Cash') { balances.jatim -= nom; balances.cash += nom; }
+                if (cat === 'GoPay') { balances.jatim -= nom; balances.gopay += nom; }
+                if (cat === 'SeaBank') { balances.jatim -= nom; balances.seabank += nom; }
+                if (cat === 'Tax') { balances.jatim -= nom; } // Pure expense from pusat
+
+                // Extra Incomes to Wallets
+                if (CATEGORY_MAP.income_cash.includes(cat)) balances.cash += nom;
+                if (CATEGORY_MAP.income_gopay.includes(cat)) balances.gopay += nom;
+                if (CATEGORY_MAP.income_seabank.includes(cat)) balances.seabank += nom;
+
+                // Expenses from Wallets
+                if (CATEGORY_MAP.expense_cash.includes(cat)) balances.cash -= nom;
+                if (CATEGORY_MAP.expense_gopay.includes(cat)) balances.gopay -= nom;
+                if (CATEGORY_MAP.expense_seabank.includes(cat)) balances.seabank -= nom;
             });
-            return { accountExp: exp, categoryExp: catExp };
         }
 
-        // --- UPDATE DASHBOARD ---
-        function updateDashboard() {
-            const balances = calculateBalances();
-            document.getElementById('balJatim').innerText = formatRp(balances.jatim);
-            document.getElementById('balCash').innerText = formatRp(balances.cash);
-            document.getElementById('balGopay').innerText = formatRp(balances.gopay);
-            document.getElementById('balSeabank').innerText = formatRp(balances.seabank);
-
-            updateCharts();
-            renderRincianKategori();
-            renderTable(transactions.slice(0, 5), 'tblRecentTx');
-        }
-
-        function updateCharts() {
-            const expData = calculateExpenses().accountExp;
+        // --- RENDERERS ---
+        function renderDashboard() {
+            calculateBalances();
             
-            // Hitung data untuk doughnut
-            let jatimIn = 0; let jatimAlokasi = {cash:0, gopay:0, seabank:0};
-            
-            // Hitung Dana Total spesifik sesuai permintaan
-            let totalDana = { jatim: 0, cash: 0, gopay: 0, seabank: 0 };
-            const jatimCats = ['Salary', 'Bunga', 'Tax'];
-            const cashCats = ['B&F', 'BBM', 'Baby Gear', 'StayCation', 'Transport', 'Services', 'Medicine', 'MotorTax', 'Edible', 'Hidden Cost'];
-            const gopayCats = ['PLN', 'BPJS', 'PDAM', 'Internet', 'OnLine', 'Plausible', 'Interest'];
-            const seabankCats = ['ShopCart', 'Return'];
+            // Update Top Cards
+            document.getElementById('dash-bal-jatim').innerText = formatIDR(balances.jatim);
+            document.getElementById('dash-bal-cash').innerText = formatIDR(balances.cash);
+            document.getElementById('dash-bal-gopay').innerText = formatIDR(balances.gopay);
+            document.getElementById('dash-bal-seabank').innerText = formatIDR(balances.seabank);
 
-            transactions.forEach(tx => {
-                const r = catMap[tx.category];
-                if(r && r.account === 'jatim') {
-                    if(r.type === 'in') jatimIn += tx.nominal;
-                    if(r.type === 'alokasi') jatimAlokasi[r.target] += tx.nominal;
+            // Calculate Chart Data
+            let expCash = 0, expGoPay = 0, expSeaBank = 0;
+            let incPusat = 0, allocCash = 0, allocGoPay = 0, allocSeaBank = 0, expTax = 0;
+            let totIncome = 0;
+
+            let catDetails = { 'Bank Jatim': {}, 'Cash': {}, 'GoPay': {}, 'SeaBank': {} };
+
+            transactions.forEach(t => {
+                const nom = parseInt(t.nominal);
+                const cat = t.kategori;
+
+                if (isIncome(cat)) totIncome += nom;
+
+                if (CATEGORY_MAP.income_pusat.includes(cat)) incPusat += nom;
+                
+                if (cat === 'Cash') { allocCash += nom; catDetails['Bank Jatim']['Alokasi Cash'] = (catDetails['Bank Jatim']['Alokasi Cash']||0) + nom; }
+                if (cat === 'GoPay') { allocGoPay += nom; catDetails['Bank Jatim']['Alokasi GoPay'] = (catDetails['Bank Jatim']['Alokasi GoPay']||0) + nom; }
+                if (cat === 'SeaBank') { allocSeaBank += nom; catDetails['Bank Jatim']['Alokasi SeaBank'] = (catDetails['Bank Jatim']['Alokasi SeaBank']||0) + nom; }
+                if (cat === 'Tax') { expTax += nom; catDetails['Bank Jatim']['Tax'] = (catDetails['Bank Jatim']['Tax']||0) + nom; }
+
+                if (CATEGORY_MAP.expense_cash.includes(cat)) { expCash += nom; catDetails['Cash'][cat] = (catDetails['Cash'][cat]||0) + nom; }
+                if (CATEGORY_MAP.expense_gopay.includes(cat)) { expGoPay += nom; catDetails['GoPay'][cat] = (catDetails['GoPay'][cat]||0) + nom; }
+                if (CATEGORY_MAP.expense_seabank.includes(cat)) { expSeaBank += nom; catDetails['SeaBank'][cat] = (catDetails['SeaBank'][cat]||0) + nom; }
+            });
+
+            // Render Charts
+            updateBarChart(expCash, expGoPay, expSeaBank);
+            
+            // Pusat Dana Doughnut (Bank Jatim remaining vs Allocations)
+            let sisaPusat = incPusat - allocCash - allocGoPay - allocSeaBank - expTax;
+            sisaPusat = sisaPusat < 0 ? 0 : sisaPusat; // Prevent negative chart
+            updateDoughnutChart('chart-pusat', 
+                [sisaPusat, allocCash, allocGoPay, allocSeaBank], 
+                ['Bank Jatim (Sisa)', 'Alokasi Cash', 'Alokasi GoPay', 'Alokasi SeaBank'], 
+                [CAT_COLORS['Bank Jatim'], CAT_COLORS['Cash'], CAT_COLORS['GoPay'], CAT_COLORS['SeaBank']]
+            );
+            document.getElementById('dash-tot-income').innerText = formatIDR(incPusat);
+
+            // Dana Total Doughnut (Total Active Balance distribution)
+            let totSaldo = balances.jatim + balances.cash + balances.gopay + balances.seabank;
+            updateDoughnutChart('chart-total',
+                [balances.jatim, balances.cash, balances.gopay, balances.seabank],
+                ['Bank Jatim', 'Cash', 'GoPay', 'SeaBank'],
+                [CAT_COLORS['Bank Jatim'], CAT_COLORS['Cash'], CAT_COLORS['GoPay'], CAT_COLORS['SeaBank']]
+            );
+            document.getElementById('dash-tot-saldo').innerText = formatIDR(totSaldo);
+
+            // Render Rincian Kategori
+            const rincianContainer = document.getElementById('rincian-kategori-container');
+            rincianContainer.innerHTML = '';
+            
+            ['Bank Jatim', 'Cash', 'GoPay', 'SeaBank'].forEach(source => {
+                let html = `<div>
+                    <h4 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-${source==='Bank Jatim'?'building-columns':source==='Cash'?'wallet':source==='GoPay'?'mobile-screen':'piggy-bank'}" style="color:${CAT_COLORS[source]}"></i> ${source}
+                    </h4>
+                    <div class="space-y-2">`;
+                
+                let hasItems = false;
+                for (const [cat, nom] of Object.entries(catDetails[source])) {
+                    hasItems = true;
+                    html += `<div class="flex justify-between text-xs">
+                        <span class="text-gray-400">${cat}</span>
+                        <span class="text-white font-medium">${formatIDR(nom)}</span>
+                    </div>`;
+                }
+
+                if (!hasItems) {
+                    html += `<p class="text-xs text-gray-600 italic">Belum ada transaksi</p>`;
                 }
                 
-                // Kalkulasi Dana Total
-                if(jatimCats.includes(tx.category)) totalDana.jatim += tx.nominal;
-                if(cashCats.includes(tx.category)) totalDana.cash += tx.nominal;
-                if(gopayCats.includes(tx.category)) totalDana.gopay += tx.nominal;
-                if(seabankCats.includes(tx.category)) totalDana.seabank += tx.nominal;
+                html += `</div></div>`;
+                rincianContainer.innerHTML += html;
             });
 
-            document.getElementById('lblTotalJatimIn').innerText = formatRp(jatimIn);
-            const totalExp = totalDana.jatim + totalDana.cash + totalDana.gopay + totalDana.seabank;
-            document.getElementById('lblTotalExp').innerText = formatRp(totalExp);
+            // Render Transaksi Terakhir (Last 5)
+            const tbody = document.getElementById('dash-trx-table');
+            tbody.innerHTML = '';
+            const recent = [...transactions].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)).slice(0, 5);
+            
+            recent.forEach(t => {
+                const isExp = isExpense(t.kategori) || isTransferOutPusat(t.kategori);
+                const sign = isExp ? '-' : '+';
+                const color = CAT_COLORS[t.kategori] || '#9CA3AF';
+                const rowStyle = isExp ? 'opacity-80' : '';
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-dark-700/30 transition-colors ${rowStyle}">
+                        <td class="py-3 text-gray-400">${formatDateText(t.tanggal)}</td>
+                        <td class="py-3 text-xs" style="color: ${color}; ${isExp ? 'opacity: 0.6;' : ''}">${t.kategori.toUpperCase()}</td>
+                        <td class="py-3 text-gray-300">${t.detail}</td>
+                        <td class="py-3 text-right font-medium" style="color: ${color}; ${isExp ? 'opacity: 0.8; filter: brightness(1.2);' : ''}">${sign} ${formatIDR(t.nominal).replace('Rp', 'Rp ')}</td>
+                        <td class="py-3 text-center">
+                            <button onclick="editTransaction(${t.id})" class="text-gray-500 hover:text-brand-gold"><i class="fa-solid fa-pen-to-square"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
 
-            // Bar Chart
-            const ctxBar = document.getElementById('barChart').getContext('2d');
-            if(chartBar) chartBar.destroy();
-            chartBar = new Chart(ctxBar, {
+        function renderCatatHistory() {
+            const tbody = document.getElementById('catat-trx-table');
+            tbody.innerHTML = '';
+            const sorted = [...transactions].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+            
+            sorted.forEach(t => {
+                const isExp = isExpense(t.kategori) || isTransferOutPusat(t.kategori);
+                const sign = isExp ? '-' : '+';
+                const color = CAT_COLORS[t.kategori] || '#9CA3AF';
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-dark-700/30 transition-colors border-b border-dark-border/50">
+                        <td class="py-3 text-gray-400 w-24">${formatDateText(t.tanggal)}</td>
+                        <td class="py-3 text-xs w-28" style="color: ${color}; ${isExp ? 'opacity: 0.6;' : ''}">${t.kategori.toUpperCase()}</td>
+                        <td class="py-3 text-gray-300 w-auto truncate max-w-[150px]">${t.detail}</td>
+                        <td class="py-3 text-right font-medium" style="color: ${color}; ${isExp ? 'opacity: 0.8; filter: brightness(1.2);' : ''}">${sign} ${formatIDR(t.nominal).replace('Rp', 'Rp ')}</td>
+                        <td class="py-3 text-center w-8">
+                            <button type="button" onclick="editTransaction(${t.id})" class="text-gray-500 hover:text-brand-gold"><i class="fa-solid fa-pen-to-square"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderRekapitulasi() {
+            const filterMonthInput = document.getElementById('filter-month').value;
+            if (!filterMonthInput) return; // Wait for initial set
+
+            const [year, month] = filterMonthInput.split('-');
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            const monthName = monthNames[parseInt(month)-1];
+            
+            document.getElementById('rekap-table-title').innerText = `Rincian Transaksi Bulan ${monthName} ${year}`;
+            document.getElementById('rekap-pengeluaran-title').innerText = `Total Pengeluaran ${monthName} ${year}`;
+
+            // Filter transactions
+            const filtered = transactions.filter(t => t.tanggal.startsWith(filterMonthInput));
+            
+            let totExp = 0;
+            const tbody = document.getElementById('rekap-trx-table');
+            tbody.innerHTML = '';
+
+            filtered.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal)).forEach(t => {
+                const isExp = isExpense(t.kategori) || isTransferOutPusat(t.kategori);
+                const isRealExpense = isExpense(t.kategori); // Don't count allocations as final expenses in surplus calc if they just moved to wallet, but usually people count allocations as 'spent' from Pusat. Let's count actual expenses out of the system.
+                
+                if (isRealExpense) totExp += parseInt(t.nominal);
+
+                const sign = isExp ? '-' : '+';
+                const color = CAT_COLORS[t.kategori] || '#9CA3AF';
+                
+                tbody.innerHTML += `
+                    <tr class="border-b border-dark-border/50">
+                        <td class="py-3 text-gray-400 print-text-dark whitespace-nowrap">${formatDateText(t.tanggal)}</td>
+                        <td class="py-3 text-xs" style="color: ${color}; ${isExp ? 'opacity: 0.6;' : ''}">${t.kategori.toUpperCase()}</td>
+                        <td class="py-3 text-gray-300 print-text-dark">${t.detail}</td>
+                        <td class="py-3 text-right font-medium whitespace-nowrap print-text-dark" style="color: ${color}; ${isExp ? 'opacity: 0.8; filter: brightness(1.2);' : ''}">${sign} ${formatIDR(t.nominal).replace('Rp', 'Rp ')}</td>
+                        <td class="py-3 text-center no-print">
+                            <button onclick="editTransaction(${t.id})" class="text-gray-500 hover:text-brand-gold"><i class="fa-solid fa-pen-to-square"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-gray-500">Tidak ada transaksi di bulan ini.</td></tr>`;
+            }
+
+            // Summary calculation
+            calculateBalances();
+            const totalSaldo = balances.jatim + balances.cash + balances.gopay + balances.seabank;
+            const surplus = totalSaldo - totExp;
+
+            document.getElementById('rekap-saldo').innerText = formatIDR(totalSaldo);
+            document.getElementById('rekap-pengeluaran').innerText = formatIDR(totExp);
+            
+            const surplusEl = document.getElementById('rekap-surplus');
+            surplusEl.innerText = (surplus >= 0 ? '+' : '') + formatIDR(surplus);
+            surplusEl.className = `text-3xl font-display font-bold ${surplus >= 0 ? 'text-acc-cash' : 'text-acc-red'} print-text-dark`;
+        }
+
+        // --- CHARTS CONFIG ---
+        Chart.defaults.color = '#9CA3AF';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        function updateBarChart(cash, gopay, seabank) {
+            const ctx = document.getElementById('chart-expenses').getContext('2d');
+            if (charts.bar) charts.bar.destroy();
+            
+            charts.bar = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Cash', 'GoPay', 'SeaBank'],
                     datasets: [{
-                        data: [expData.cash, expData.gopay, expData.seabank],
-                        backgroundColor: [colors.cash, colors.gopay, colors.seabank],
+                        data: [cash, gopay, seabank],
+                        backgroundColor: [CAT_COLORS['Cash'], CAT_COLORS['GoPay'], CAT_COLORS['SeaBank']],
                         borderRadius: 4,
                         barThickness: 30
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: '#1e293b' }, ticks: { color: colors.textMuted } },
-                        x: { grid: { display: false }, ticks: { color: colors.textMuted } }
+                        y: { beginAtZero: true, grid: { color: '#1F2937' }, ticks: { callback: (val) => 'Rp ' + (val/1000) + 'k' } },
+                        x: { grid: { display: false } }
                     }
                 }
             });
+        }
 
-            // Donut Jatim (Pusat Dana)
-            const ctxJatim = document.getElementById('donutJatim').getContext('2d');
-            if(chartDonutJatim) chartDonutJatim.destroy();
-            chartDonutJatim = new Chart(ctxJatim, {
+        function updateDoughnutChart(id, dataArr, labelsArr, colorsArr) {
+            const ctx = document.getElementById(id).getContext('2d');
+            if (charts[id]) charts[id].destroy();
+
+            charts[id] = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Sisa Jatim', 'Alokasi Cash', 'Alokasi GoPay', 'Alokasi SeaBank'],
+                    labels: labelsArr,
                     datasets: [{
-                        data: [
-                            jatimIn - (jatimAlokasi.cash + jatimAlokasi.gopay + jatimAlokasi.seabank), 
-                            jatimAlokasi.cash, jatimAlokasi.gopay, jatimAlokasi.seabank
-                        ],
-                        backgroundColor: [colors.jatim, colors.cash, colors.gopay, colors.seabank],
+                        data: dataArr,
+                        backgroundColor: colorsArr,
                         borderWidth: 0,
                         hoverOffset: 4
                     }]
                 },
-                options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: true } } }
-            });
-
-            // Donut Total
-            const ctxTotal = document.getElementById('donutTotal').getContext('2d');
-            if(chartDonutTotal) chartDonutTotal.destroy();
-            chartDonutTotal = new Chart(ctxTotal, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Bank Jatim', 'Cash', 'GoPay', 'SeaBank'],
-                    datasets: [{
-                        data: [totalDana.jatim, totalDana.cash, totalDana.gopay, totalDana.seabank],
-                        backgroundColor: [colors.jatim, colors.cash, colors.gopay, colors.seabank],
-                        borderWidth: 0,
-                        hoverOffset: 4
-                    }]
-                },
-                options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: true } } }
-            });
-        }
-
-        function renderRincianKategori() {
-            const expCat = calculateExpenses().categoryExp;
-            
-            // Alokasi khusus Jatim
-            let alokasiExp = {};
-            transactions.forEach(tx => {
-                const r = catMap[tx.category];
-                if(r && r.type === 'alokasi') alokasiExp[tx.category] = (alokasiExp[tx.category] || 0) + tx.nominal;
-            });
-
-            const renderBlock = (title, icon, color, dataMap, checkKeys) => {
-                let html = `<div><h4 class="text-sm font-semibold mb-3 flex items-center gap-2" style="color:${color}"><i class="${icon}"></i> ${title}</h4><div class="space-y-2">`;
-                let hasData = false;
-                checkKeys.forEach(k => {
-                    if(dataMap[k]) {
-                        hasData = true;
-                        html += `<div class="flex justify-between text-xs border-b border-gray-800 pb-1"><span class="text-gray-400">${k}</span><span class="font-medium text-white">${formatRp(dataMap[k])}</span></div>`;
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    if (context.parsed !== null) label += formatIDR(context.parsed);
+                                    return label;
+                                }
+                            }
+                        }
                     }
-                });
-                if(!hasData) html += `<p class="text-xs text-gray-600 italic">Belum ada pengeluaran</p>`;
-                html += `</div></div>`;
-                return html;
-            };
-
-            const container = document.getElementById('rincianKategoriContainer');
-            container.innerHTML = 
-                renderBlock('Bank Jatim', 'ph-fill ph-bank', colors.jatim, alokasiExp, ['Alokasi GoPay', 'Alokasi Cash', 'Alokasi SeaBank']) +
-                renderBlock('Cash', 'ph-fill ph-wallet', colors.cash, expCat, ['B&F', 'BBM', 'Baby Gear', 'StayCation', 'Transport', 'Services', 'Medicine', 'MotorTax', 'Hidden Cost', 'Edible']) +
-                renderBlock('GoPay', 'ph-fill ph-device-mobile', colors.gopay, expCat, ['PLN', 'BPJS', 'PDAM', 'Internet', 'OnLine', 'Plausible']) +
-                renderBlock('SeaBank', 'ph-fill ph-piggy-bank', colors.seabank, expCat, ['ShopCart']);
-        }
-
-        // --- RENDER TABLES ---
-        function getBadge(category) {
-            const rules = catMap[category];
-            const color = rules ? colors[rules.account] : '#fff';
-            return `<span class="text-xs font-bold uppercase tracking-wider" style="color: ${color}">${category}</span>`;
-        }
-
-        function renderTable(data, elementId) {
-            const tbody = document.getElementById(elementId);
-            tbody.innerHTML = '';
-            
-            // Sort by Date Descending
-            const sorted = [...data].sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            sorted.forEach(tx => {
-                const rules = catMap[tx.category];
-                let isIncome = rules && rules.type === 'in';
-                let nominalClass = isIncome ? 'text-green-400' : (rules.type === 'alokasi' ? 'text-gold' : 'text-red-400');
-                let prefix = isIncome ? '+ ' : (rules.type === 'alokasi' ? '' : '- ');
-                // opacity for expenses
-                let rowClass = (rules && rules.type === 'out') ? 'opacity-80 hover:opacity-100 transition' : '';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-dark/30 transition group ${rowClass}">
-                        <td class="p-4 whitespace-nowrap">${formatDate(tx.date)}</td>
-                        <td class="p-4">${getBadge(tx.category)}</td>
-                        <td class="p-4 text-gray-300 w-full max-w-xs truncate">${tx.detail}</td>
-                        <td class="p-4 text-right font-medium whitespace-nowrap ${nominalClass}">${prefix}${formatRp(tx.nominal)}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="editTransaction(${tx.id})" class="text-gray-500 hover:text-gold no-print"><i class="ph ph-pencil-simple text-lg"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
-            if(data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-500 italic">Tidak ada transaksi.</td></tr>`;
-            }
-        }
-
-
-        // --- FORM HANDLING ---
-        // Format Input Nominal
-        const txNominal = document.getElementById('txNominal');
-        txNominal.addEventListener('input', function(e) {
-            let val = this.value.replace(/[^0-9]/g, '');
-            if(val) this.value = parseInt(val, 10).toLocaleString('id-ID');
-            else this.value = '';
-        });
-
-        function saveTransaction(e) {
-            e.preventDefault();
-            const id = document.getElementById('editId').value;
-            const date = document.getElementById('txDate').value;
-            const category = document.getElementById('txCategory').value;
-            const nominal = parseRp(document.getElementById('txNominal').value);
-            const detail = document.getElementById('txDetail').value;
-
-            if(id) {
-                // Edit
-                const index = transactions.findIndex(t => t.id == id);
-                if(index > -1) {
-                    transactions[index] = { id: parseInt(id), date, category, nominal, detail };
-                    showToast('Transaksi diubah');
                 }
-            } else {
-                // Tambah baru
-                const newId = transactions.length > 0 ? Math.max(...transactions.map(t=>t.id)) + 1 : 1;
-                transactions.push({ id: newId, date, category, nominal, detail });
-                showToast('Transaksi disimpan');
-            }
-
-            resetForm();
-            updateAllViews();
-        }
-
-        function editTransaction(id) {
-            const tx = transactions.find(t => t.id === id);
-            if(tx) {
-                switchTab('catat');
-                document.getElementById('editId').value = tx.id;
-                document.getElementById('txDate').value = tx.date;
-                document.getElementById('txCategory').value = tx.category;
-                document.getElementById('txNominal').value = tx.nominal.toLocaleString('id-ID');
-                document.getElementById('txDetail').value = tx.detail;
-                document.getElementById('btnSave').innerText = "Update Transaksi";
-                window.scrollTo(0,0);
-            }
-        }
-
-        function resetForm() {
-            document.getElementById('formCatat').reset();
-            document.getElementById('editId').value = '';
-            // set today default
-            document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('btnSave').innerText = "Simpan Transaksi";
-        }
-
-        function updateAllViews() {
-            updateDashboard();
-            renderTable(transactions, 'tblSideHistory');
-            updateRekapitulasi();
-        }
-
-        // --- REKAPITULASI LOGIC ---
-        function toggleMonthDropdown() {
-            document.getElementById('monthDropdown').classList.toggle('hidden');
-            renderMonthGrid();
-        }
-
-        function changeYear(delta) {
-            currentFilterYear += delta;
-            document.getElementById('dropYear').innerText = currentFilterYear;
-        }
-
-        function selectMonth(mIndex) {
-            currentFilterMonth = mIndex;
-            document.getElementById('monthDropdown').classList.add('hidden');
-            updateRekapitulasi();
-        }
-
-        function renderMonthGrid() {
-            const grid = document.getElementById('monthGrid');
-            grid.innerHTML = '';
-            months.forEach((m, i) => {
-                const isActive = i === currentFilterMonth;
-                grid.innerHTML += `<button onclick="selectMonth(${i})" class="p-2 rounded-lg ${isActive ? 'bg-gold text-dark font-bold' : 'hover:bg-gray-700 text-gray-300'} transition">${m}</button>`;
             });
-            document.getElementById('dropYear').innerText = currentFilterYear;
         }
 
-        function updateRekapitulasi() {
-            const labelStr = `${months[currentFilterMonth]} ${currentFilterYear}`;
-            document.getElementById('btnMonthLabel').innerText = labelStr;
-            document.getElementById('lblTableRekap').innerText = `Rincian Transaksi Bulan ${labelStr}`;
-            document.getElementById('lblRekapPengeluaran').innerText = `Total Pengeluaran ${labelStr}`;
-            document.getElementById('printSubtitle').innerText = `Laporan bulanan pengeluaran dan surplus - ${labelStr}`;
-
-            // Filter data by month and year
-            const filtered = transactions.filter(tx => {
-                const d = new Date(tx.date);
-                return d.getMonth() === currentFilterMonth && d.getFullYear() === currentFilterYear;
+        // --- NAVIGATION & UI ---
+        function navigate(view) {
+            document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('text-brand-gold', 'bg-dark-700/50');
+                el.classList.add('text-gray-400');
             });
-
-            renderTable(filtered, 'tblRekap');
-
-            // Kalkulasi khusus bulan ini
-            let totalPengeluaranBulan = 0;
-            filtered.forEach(tx => {
-                const rules = catMap[tx.category];
-                if(rules && rules.type === 'out') totalPengeluaranBulan += tx.nominal;
-            });
-
-            const balances = calculateBalances();
-            const totalSaldoAktif = balances.jatim + balances.cash + balances.gopay + balances.seabank;
-            const surplus = totalSaldoAktif - totalPengeluaranBulan;
-
-            document.getElementById('rekapSaldoAktif').innerText = formatRp(totalSaldoAktif);
-            document.getElementById('rekapPengeluaran').innerText = formatRp(totalPengeluaranBulan);
             
-            const surplusEl = document.getElementById('rekapSurplus');
-            if(surplus >= 0) {
-                surplusEl.innerText = `+${formatRp(surplus)}`;
-                surplusEl.className = "text-2xl font-bold text-green-400";
-            } else {
-                surplusEl.innerText = `-${formatRp(Math.abs(surplus))}`;
-                surplusEl.className = "text-2xl font-bold text-red-400";
-            }
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            document.getElementById(`nav-${view}`).classList.remove('text-gray-400');
+            document.getElementById(`nav-${view}`).classList.add('text-brand-gold', 'bg-dark-700/50');
+
+            if (view === 'dashboard') renderDashboard();
+            if (view === 'catat') renderCatatHistory();
+            if (view === 'rekap') renderRekapitulasi();
         }
 
-        // --- SPREADSHEET INTEGRATION ---
-        function saveSettings() {
-            const url = document.getElementById('scriptUrl').value;
-            localStorage.setItem('sheetUrl', url);
-            toggleModal('settingsModal');
-            showToast('URL Tersimpan');
-        }
+        // --- CRUD & GOOGLE SHEETS SYNC ---
+        const getScriptUrl = () => localStorage.getItem('wf_script_url');
 
-        async function syncData() {
-            const url = localStorage.getItem('sheetUrl');
-            if(!url) {
-                toggleModal('settingsModal');
+        async function syncData(showLoader = true) {
+            const url = getScriptUrl();
+            const icon = document.getElementById('sync-icon');
+            
+            if (!url) {
+                // If no URL, use mock data
+                if(transactions.length === 0) transactions = [...mockData];
+                renderAll();
                 return;
             }
 
-            const icon = document.getElementById('syncIcon');
-            icon.classList.add('animate-spin', 'text-gold');
-
+            if(showLoader) icon.classList.add('fa-spin');
+            
             try {
-                // Untuk simulasi Post/Sync ke google sheet. 
-                // Karena CORS di Apps Script, method yang digunakan biasanya POST dengan mode no-cors 
-                // Atau GET JSONP. Disini saya siapkan struktur Fetch-nya
-                
-                /*
-                // KODE ASLI JIKA ADA ENDPOINT APPS SCRIPT:
-                const response = await fetch(url + "?action=getData");
+                const response = await fetch(url);
                 const data = await response.json();
-                if(data.status === "success") {
-                    transactions = data.transactions;
-                    updateAllViews();
-                }
                 
-                // Atau post data
-                await fetch(url, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'sync', data: transactions })
-                });
-                */
-
-                // Simulasi delay sinkronisasi
-                await new Promise(r => setTimeout(r, 1500));
-                showToast('Data tersinkronisasi!');
+                // Convert timestamp strings to Date strings for consistency if needed
+                transactions = data.map(t => ({
+                    id: t.id,
+                    tanggal: t.tanggal.split('T')[0], // handle ISO strings from Sheets
+                    kategori: t.kategori,
+                    detail: t.detail,
+                    nominal: t.nominal
+                }));
+                renderAll();
             } catch (error) {
-                console.error(error);
-                showToast('Gagal Sinkronisasi. Cek URL.');
+                console.error("Sync Error:", error);
+                alert("Gagal sinkronisasi dengan Google Sheets. Pastikan URL benar.");
             } finally {
-                icon.classList.remove('animate-spin', 'text-gold');
+                if(showLoader) icon.classList.remove('fa-spin');
             }
         }
 
-        // Init Setup
-        document.addEventListener('DOMContentLoaded', () => {
-            // Set date default to today
-            document.getElementById('txDate').value = new Date().toISOString().split('T')[0];
+        async function saveToServer(data, action) {
+            const url = getScriptUrl();
+            if (!url) return; // If no URL, we only save locally in memory
+
+            try {
+                const formData = new FormData();
+                formData.append('action', action);
+                formData.append('data', JSON.stringify(data));
+
+                await fetch(url, { method: 'POST', body: formData });
+            } catch (error) {
+                console.error("Save Error:", error);
+            }
+        }
+
+        async function handleSimpan(e) {
+            e.preventDefault();
+            const id = document.getElementById('input-id').value;
+            const tanggal = document.getElementById('input-tanggal').value;
+            const kategori = document.getElementById('input-kategori').value;
+            const nominal = parseIDR(document.getElementById('input-nominal').value);
+            const detail = document.getElementById('input-detail').value;
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = 'Menyimpan...';
+            submitBtn.disabled = true;
+
+            const data = { id: id || Date.now(), tanggal, kategori, nominal, detail };
+
+            if (id) {
+                // Update
+                const index = transactions.findIndex(t => t.id == id);
+                if (index > -1) transactions[index] = data;
+                await saveToServer(data, 'update');
+            } else {
+                // Insert
+                transactions.push(data);
+                await saveToServer(data, 'insert');
+            }
+
+            resetForm();
+            renderAll();
             
-            // Render initial views
-            updateAllViews();
-        });
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
+        }
+
+        function editTransaction(id) {
+            const t = transactions.find(t => t.id == id);
+            if (!t) return;
+            
+            document.getElementById('input-id').value = t.id;
+            document.getElementById('input-tanggal').value = t.tanggal;
+            document.getElementById('input-kategori').value = t.kategori;
+            document.getElementById('input-nominal').value = t.nominal.toLocaleString('id-ID');
+            document.getElementById('input-detail').value = t.detail;
+            
+            navigate('catat');
+            document.getElementById('input-nominal').focus();
+        }
+
+        function resetForm() {
+            document.getElementById('form-catat').reset();
+            document.getElementById('input-id').value = '';
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderCatatHistory();
+            renderRekapitulasi();
+        }
+
+        // --- SETTINGS MODAL ---
+        function openSettings() {
+            document.getElementById('input-script-url').value = getScriptUrl() || '';
+            document.getElementById('modal-settings').classList.remove('hidden');
+        }
+
+        function closeSettings() {
+            document.getElementById('modal-settings').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            const url = document.getElementById('input-script-url').value;
+            localStorage.setItem('wf_script_url', url);
+            closeSettings();
+            syncData(); // attempt to sync with new URL
+        }
+
+        // --- INIT ---
+        window.onload = () => {
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('input-tanggal').value = today;
+            
+            // Set default filter month to current month
+            const curMonth = today.substring(0, 7);
+            document.getElementById('filter-month').value = curMonth;
+
+            syncData(false); // Load initial data
+        };
 
     </script>
 </body>
