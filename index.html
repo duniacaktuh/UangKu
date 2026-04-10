@@ -17,7 +17,7 @@
         
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(51, 65, 85, 0.5); }
         .text-jatim { color: #c41b38; }
-        .text-cash { color: #8b9bb4; }
+        .text-cash { color: #00D54B; }
         .text-gopay { color: #00ABD6; }
         .text-seabank { color: #db773d; }
         .text-gold { color: #eab308; }
@@ -347,21 +347,21 @@
                 'Salary': { type: 'in', parent: 'Bank Jatim', color: '#c41b38' },
                 'Bunga': { type: 'in', parent: 'Bank Jatim', color: '#c41b38' },
                 'Tax': { type: 'out', parent: 'Bank Jatim', color: '#c41b38' },
-                'Cash': { type: 'transfer', parent: 'Cash', color: '#8b9bb4', source: 'Bank Jatim' },
+                'Cash': { type: 'transfer', parent: 'Cash', color: '#00D54B', source: 'Bank Jatim' },
                 'GoPay': { type: 'transfer', parent: 'GoPay', color: '#00ABD6', source: 'Bank Jatim' },
                 'SeaBank': { type: 'transfer', parent: 'SeaBank', color: '#db773d', source: 'Bank Jatim' },
-                'Extra': { type: 'in', parent: 'Cash', color: '#8b9bb4' },
-                'Receivable': { type: 'in', parent: 'Cash', color: '#8b9bb4' },
-                'B&F': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'BBM': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'Baby Gear': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'StayCation': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'Transport': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'Services': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'Medicine': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'MotorTax': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'Edible': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
-                'Hidden Cost': { type: 'out', parent: 'Cash', color: '#8b9bb4' },
+                'Extra': { type: 'in', parent: 'Cash', color: '#00D54B' },
+                'Receivable': { type: 'in', parent: 'Cash', color: '#00D54B' },
+                'B&F': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'BBM': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'Baby Gear': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'StayCation': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'Transport': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'Services': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'Medicine': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'MotorTax': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'Edible': { type: 'out', parent: 'Cash', color: '#00D54B' },
+                'Hidden Cost': { type: 'out', parent: 'Cash', color: '#00D54B' },
                 'Allowance': { type: 'in', parent: 'GoPay', color: '#00ABD6' },
                 'Interest': { type: 'in', parent: 'GoPay', color: '#00ABD6' },
                 'PLN': { type: 'out', parent: 'GoPay', color: '#00ABD6' },
@@ -510,7 +510,7 @@
                     type: 'bar',
                     data: {
                         labels: ['Cash', 'GoPay', 'SeaBank'],
-                        datasets: [{ data: [b.outCash, b.outGoPay, b.outSeaBank], backgroundColor: ['#8b9bb4', '#00ABD6', '#db773d'], borderRadius: 6 }]
+                        datasets: [{ data: [b.outCash, b.outGoPay, b.outSeaBank], backgroundColor: ['#00D54B', '#00ABD6', '#db773d'], borderRadius: 6 }]
                     },
                     options: { ...common, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' }, ticks: { callback: v => 'Rp '+v/1000+'k' } } } }
                 });
@@ -523,7 +523,7 @@
                     type: 'doughnut',
                     data: {
                         labels: ['Bank Jatim', 'Alokasi Cash', 'Alokasi GoPay', 'Alokasi SeaBank'],
-                        datasets: [{ data: [b['Bank Jatim'], tCash, tGopay, tSea], backgroundColor: ['#c41b38', '#8b9bb4', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
+                        datasets: [{ data: [b['Bank Jatim'], tCash, tGopay, tSea], backgroundColor: ['#c41b38', '#00D54B', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
                     },
                     options: common
                 });
@@ -532,7 +532,7 @@
                     type: 'doughnut',
                     data: {
                         labels: ['Bank Jatim (Salary/Inc)', 'Cash (Out)', 'GoPay (Out)', 'SeaBank (Out)'],
-                        datasets: [{ data: [b.inBankJatim, b.outCash, b.outGoPay, b.outSeaBank], backgroundColor: ['#c41b38', '#8b9bb4', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
+                        datasets: [{ data: [b.inBankJatim, b.outCash, b.outGoPay, b.outSeaBank], backgroundColor: ['#c41b38', '#00D54B', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
                     },
                     options: common
                 });
