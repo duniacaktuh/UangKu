@@ -153,8 +153,8 @@
         <!-- VIEW: CATAT DANA -->
         <div id="view-catat" class="hidden space-y-6 max-w-5xl mx-auto">
             <h2 class="text-2xl font-bold text-white">Catat Transaksi</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="glass-panel rounded-2xl p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="glass-panel rounded-2xl p-8 sticky top-0">
                     <form id="form-catat" onsubmit="app.handleFormSubmit(event)" class="space-y-5">
                         <input type="hidden" id="input-id">
                         <div class="grid grid-cols-2 gap-4">
@@ -222,9 +222,10 @@
                         </div>
                     </form>
                 </div>
-                <div class="glass-panel rounded-2xl p-8 overflow-hidden flex flex-col">
+                <!-- Perbaikan Scroll Bar Histori -->
+                <div class="glass-panel rounded-2xl p-8 overflow-hidden flex flex-col max-h-[600px]">
                     <h4 class="text-sm font-bold text-white mb-6 uppercase tracking-wider">Histori Transaksi</h4>
-                    <div class="space-y-4 overflow-y-auto flex-1 pr-2" id="list-histori"></div>
+                    <div class="space-y-4 overflow-y-auto flex-1 pr-4" id="list-histori"></div>
                 </div>
             </div>
         </div>
@@ -338,7 +339,7 @@
                 'Tax': { type: 'out', parent: 'Bank Jatim', color: '#c41b38' },
                 'Cash': { type: 'transfer', parent: 'Cash', color: '#a9bf7f', source: 'Bank Jatim' },
                 'GoPay': { type: 'transfer', parent: 'GoPay', color: '#00ABD6', source: 'Bank Jatim' },
-                'SeaBank': { type: 'transfer', parent: 'SeaBank', color: '#db773d', source: 'Bank Jatim' },
+                'SeaBank': { type: 'transfer', parent: 'SeaBank', color: '#00ABD6', source: 'Bank Jatim' },
                 'Extra': { type: 'in', parent: 'Cash', color: '#a9bf7f' },
                 'Receivable': { type: 'in', parent: 'Cash', color: '#a9bf7f' },
                 'B&F': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
@@ -374,7 +375,6 @@
                 if(this.sheetUrl) this.pullData(true);
             },
 
-            // Fungsi generate ID unik: 9 digit, diawali huruf
             generateUniqueId() {
                 const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
                 const allChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -519,20 +519,20 @@
                     const info = this.categories[trx.kat];
                     const isMin = info.type === 'out' || info.type === 'transfer' || trx.kat === 'Tax';
                     return `
-                    <div class="flex justify-between items-center bg-slate-800/20 p-3 rounded-xl border border-slate-800/50 group hover:border-slate-700">
+                    <div class="flex justify-between items-center bg-slate-800/20 p-4 rounded-xl border border-slate-800/50 group hover:border-slate-700 transition-colors">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-[10px] text-slate-500 font-bold">${trx.tanggal}</span>
-                                <span class="text-[10px] font-normal uppercase" style="color: ${info.color}">${trx.kat}</span>
+                                <span class="text-[10px] font-bold uppercase" style="color: ${info.color}">${trx.kat}</span>
                             </div>
-                            <p class="text-sm text-white">${trx.detail}</p>
+                            <p class="text-sm text-white font-medium">${trx.detail}</p>
                         </div>
                         <div class="flex items-center gap-4">
                             <p class="text-sm font-semibold ${isMin ? 'text-slate-300' : 'text-red-500'}">${isMin ? '-' : '+'} ${this.formatRp(trx.nominal)}</p>
-                            <button onclick="app.editTrx('${trx.id}')" class="text-slate-600 hover:text-gold opacity-0 group-hover:opacity-100"><i class="ph ph-pencil-simple"></i></button>
+                            <button onclick="app.editTrx('${trx.id}')" class="text-slate-600 hover:text-gold opacity-0 group-hover:opacity-100 transition-all"><i class="ph ph-pencil-simple text-lg"></i></button>
                         </div>
                     </div>`;
-                }).join('') || '<p class="text-center text-slate-600 py-10">Kosong.</p>';
+                }).join('') || '<p class="text-center text-slate-600 py-10">Belum ada transaksi.</p>';
             },
 
             renderRekap() {
@@ -554,18 +554,29 @@
             },
 
             parseDate(str) {
+                if(!str) return new Date();
+                // Jika format ISO (perbaikan untuk data April yang error)
+                if(str.includes('T') || str.includes('Z')) return new Date(str);
+                
                 const parts = str.split(' ');
                 if(parts.length < 3) return new Date(0);
                 const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
                 const mIdx = months.indexOf(parts[1]);
-                return new Date(parts[2], mIdx, parts[0]);
+                return new Date(parts[2], mIdx, parseInt(parts[0]));
             },
 
-            formatDisplayDate(isoDate) {
-                if(!isoDate) return "";
-                const d = new Date(isoDate);
+            formatDisplayDate(inputDate) {
+                if(!inputDate) return "";
+                // Memastikan inputDate adalah objek Date
+                const d = new Date(inputDate);
+                if(isNaN(d.getTime())) return inputDate; // Fallback jika gagal parse
+
+                const day = String(d.getDate()).padStart(2, '0');
                 const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+                const monthName = months[d.getMonth()];
+                const year = d.getFullYear();
+                
+                return `${day} ${monthName} ${year}`;
             },
 
             async handleFormSubmit(e) {
@@ -576,18 +587,18 @@
                 const nominalValue = document.getElementById('input-nominal').value.replace(/\D/g, '');
                 const nominal = parseInt(nominalValue) || 0;
                 const detail = document.getElementById('input-detail').value;
+                
+                // Pastikan format tanggal terkunci ke format tampilan
                 const tanggal = this.formatDisplayDate(tanggalRaw);
                 
                 let newData = [...this.data];
                 
                 if(id) {
-                    // Update data yang ada
                     const idx = newData.findIndex(x => x.id === id);
                     if(idx > -1) {
                         newData[idx] = { id, tanggal, kat, nominal, detail };
                     }
                 } else {
-                    // Tambah data baru
                     const newTrx = { 
                         id: this.generateUniqueId(), 
                         tanggal, 
@@ -598,7 +609,6 @@
                     newData.push(newTrx);
                 }
 
-                // SINKRONISASI OTOMATIS KE CLOUD
                 if(this.sheetUrl) {
                     this.showToast("Menyimpan ke Cloud...");
                     const success = await this.pushData(newData);
@@ -620,12 +630,17 @@
                 if(!trx) return;
                 const d = this.parseDate(trx.tanggal);
                 document.getElementById('input-id').value = trx.id;
-                document.getElementById('input-tanggal').value = d.toISOString().split('T')[0];
+                
+                // Mengatur nilai input date (YYYY-MM-DD)
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                document.getElementById('input-tanggal').value = `${yyyy}-${mm}-${dd}`;
+                
                 document.getElementById('input-kategori').value = trx.kat;
                 document.getElementById('input-nominal').value = new Intl.NumberFormat('id-ID').format(trx.nominal);
                 document.getElementById('input-detail').value = trx.detail;
                 
-                // Ubah teks tombol submit
                 document.getElementById('btn-submit').innerText = "Simpan Perubahan";
                 
                 this.switchTab('catat');
@@ -642,10 +657,16 @@
             generateRow(trx) {
                 const info = this.categories[trx.kat];
                 const isMin = info.type === 'out' || info.type === 'transfer' || trx.kat === 'Tax';
+                // Jika data April yang corrupt terbawa, kita format ulang saat render baris
+                let displayDate = trx.tanggal;
+                if(displayDate.includes('T')) {
+                    displayDate = this.formatDisplayDate(displayDate);
+                }
+
                 return `
                 <tr class="hover:bg-slate-800/30 group">
-                    <td class="px-6 py-4 text-slate-400 font-medium">${trx.tanggal}</td>
-                    <td class="px-6 py-4 uppercase" style="color: ${info.color}">${trx.kat}</td>
+                    <td class="px-6 py-4 text-slate-400 font-medium">${displayDate}</td>
+                    <td class="px-6 py-4 uppercase font-bold" style="color: ${info.color}">${trx.kat}</td>
                     <td class="px-6 py-4 text-white">${trx.detail}</td>
                     <td class="px-6 py-4 text-right font-semibold ${isMin ? 'text-slate-300' : 'text-red-500'}">${isMin ? '-' : '+'} ${this.formatRp(trx.nominal)}</td>
                     <td class="px-6 py-4 text-center no-print">
@@ -661,7 +682,15 @@
                 try {
                     const res = await fetch(this.sheetUrl);
                     const cloudData = await res.json();
-                    this.data = cloudData;
+                    
+                    // Cleanup Corrupt Dates from Cloud during Pull
+                    this.data = cloudData.map(item => {
+                        if(item.tanggal && (item.tanggal.includes('T') || item.tanggal.includes('Z'))) {
+                            item.tanggal = this.formatDisplayDate(item.tanggal);
+                        }
+                        return item;
+                    });
+
                     localStorage.setItem('wealthData_v2', JSON.stringify(this.data));
                     this.switchTab(this.activeTab);
                     if(!silent) this.showToast("Sinkron Berhasil!");
