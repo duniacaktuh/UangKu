@@ -22,7 +22,6 @@
         .text-seabank { color: #db773d; }
         .text-gold { color: #eab308; }
 
-        /* Month Picker UI */
         .month-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px; }
         .month-item { padding: 8px; text-align: center; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 13px; }
         .month-item:hover { background: rgba(234, 179, 8, 0.2); color: #eab308; }
@@ -69,7 +68,7 @@
     </aside>
 
     <main id="main-content" class="flex-1 overflow-y-auto relative p-6 md:p-10">
-        <!-- Toast -->
+        <!-- Toast Notification -->
         <div id="toast" class="fixed top-6 right-6 z-50 transform translate-x-full transition-transform duration-300 pointer-events-none">
             <div id="toast-content" class="bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center"></div>
         </div>
@@ -128,9 +127,7 @@
 
             <div class="glass-panel rounded-2xl p-6">
                 <h4 class="text-sm font-semibold mb-6 flex items-center"><i class="ph ph-list-bullets mr-2 text-gold"></i> Rincian Pengeluaran per Kategori</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" id="rincian-kategori-list">
-                    <!-- Dinamis -->
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" id="rincian-kategori-list"></div>
             </div>
 
             <div class="glass-panel rounded-2xl overflow-hidden">
@@ -148,9 +145,7 @@
                             <th class="px-6 py-4 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="table-recent" class="divide-y divide-slate-800">
-                        <!-- Dinamis -->
-                    </tbody>
+                    <tbody id="table-recent" class="divide-y divide-slate-800"></tbody>
                 </table>
             </div>
         </div>
@@ -222,16 +217,14 @@
                             <textarea id="input-detail" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white resize-none"></textarea>
                         </div>
                         <div class="flex gap-3 pt-4">
-                            <button type="submit" class="flex-1 bg-gold hover:bg-yellow-500 text-black font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-gold/20">Simpan Transaksi</button>
+                            <button type="submit" id="btn-submit" class="flex-1 bg-gold hover:bg-yellow-500 text-black font-bold py-3 px-6 rounded-xl transition-all shadow-lg shadow-gold/20">Simpan Transaksi</button>
                             <button type="button" onclick="app.resetForm()" class="px-6 py-3 border border-slate-700 rounded-xl text-white font-medium hover:bg-slate-800">Batal</button>
                         </div>
                     </form>
                 </div>
                 <div class="glass-panel rounded-2xl p-8 overflow-hidden flex flex-col">
                     <h4 class="text-sm font-bold text-white mb-6 uppercase tracking-wider">Histori Transaksi</h4>
-                    <div class="space-y-4 overflow-y-auto flex-1 pr-2" id="list-histori">
-                        <!-- Dinamis -->
-                    </div>
+                    <div class="space-y-4 overflow-y-auto flex-1 pr-2" id="list-histori"></div>
                 </div>
             </div>
         </div>
@@ -249,7 +242,6 @@
                             <span id="display-rekap-month">April 2026</span>
                             <i class="ph ph-calendar-blank"></i>
                         </button>
-                        <!-- Month Picker Dropdown -->
                         <div id="month-picker-ui" class="absolute right-0 top-full mt-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl z-50 w-[280px] hidden">
                             <div class="p-3 border-b border-slate-700 flex justify-between items-center">
                                 <button onclick="app.changeYear(-1)" class="p-1 hover:text-gold"><i class="ph ph-caret-left"></i></button>
@@ -261,14 +253,14 @@
                                 <div onclick="app.selectMonth(1)" class="month-item">Feb</div>
                                 <div onclick="app.selectMonth(2)" class="month-item">Mar</div>
                                 <div onclick="app.selectMonth(3)" class="month-item">Apr</div>
-                                <div onclick="app.selectMonth(4)" class="month-item">May</div>
+                                <div onclick="app.selectMonth(4)" class="month-item">Mei</div>
                                 <div onclick="app.selectMonth(5)" class="month-item">Jun</div>
                                 <div onclick="app.selectMonth(6)" class="month-item">Jul</div>
-                                <div onclick="app.selectMonth(7)" class="month-item">Aug</div>
+                                <div onclick="app.selectMonth(7)" class="month-item">Agu</div>
                                 <div onclick="app.selectMonth(8)" class="month-item">Sep</div>
-                                <div onclick="app.selectMonth(9)" class="month-item">Oct</div>
+                                <div onclick="app.selectMonth(9)" class="month-item">Okt</div>
                                 <div onclick="app.selectMonth(10)" class="month-item">Nov</div>
-                                <div onclick="app.selectMonth(11)" class="month-item">Dec</div>
+                                <div onclick="app.selectMonth(11)" class="month-item">Des</div>
                             </div>
                         </div>
                     </div>
@@ -284,7 +276,7 @@
                     <h3 class="text-2xl font-bold text-white print-black" id="rekap-saldo">Rp 0</h3>
                 </div>
                 <div class="glass-panel rounded-2xl p-6 print:border print:shadow-none">
-                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1" id="rekap-pengeluaran-label">Total Pengeluaran April 2026</p>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase mb-1" id="rekap-pengeluaran-label">Total Pengeluaran</p>
                     <h3 class="text-2xl font-bold text-white print-black" id="rekap-pengeluaran">Rp 0</h3>
                 </div>
                 <div class="glass-panel rounded-2xl p-6 print:border print:shadow-none">
@@ -295,7 +287,7 @@
 
             <div class="glass-panel rounded-2xl overflow-hidden print:border">
                 <div class="p-6 border-b border-slate-800">
-                    <h4 class="text-sm font-bold text-white print-black" id="rekap-table-title">Rincian Transaksi Bulan April 2026</h4>
+                    <h4 class="text-sm font-bold text-white print-black" id="rekap-table-title">Rincian Transaksi</h4>
                 </div>
                 <table class="w-full text-left text-sm">
                     <thead class="bg-slate-800/50 text-slate-500 uppercase text-[10px] font-bold print:border-b">
@@ -307,9 +299,7 @@
                             <th class="px-6 py-4 text-center no-print">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="table-rekap" class="divide-y divide-slate-800 print:divide-slate-200 print-black">
-                        <!-- Dinamis -->
-                    </tbody>
+                    <tbody id="table-rekap" class="divide-y divide-slate-800 print:divide-slate-200 print-black"></tbody>
                 </table>
             </div>
         </div>
@@ -327,7 +317,6 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wide">Google Web App URL</label>
                     <input type="url" id="input-sheet-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-gold focus:outline-none transition-all">
-                    <p class="text-[10px] text-slate-500 mt-3 leading-relaxed italic">*URL ini digunakan untuk sinkronisasi data dari dan ke Google Spreadsheet secara real-time.</p>
                 </div>
                 <button onclick="app.saveSettings()" class="w-full bg-gold hover:bg-yellow-500 text-black font-bold py-3 rounded-xl transition-all">Simpan Pengaturan</button>
             </div>
@@ -340,7 +329,7 @@
             sheetUrl: localStorage.getItem('wealthSheetUrl') || '',
             activeTab: 'dashboard',
             selectedYear: 2026,
-            selectedMonth: 3, // 0-indexed (April)
+            selectedMonth: 3, 
             charts: {},
             
             categories: {
@@ -378,74 +367,22 @@
                 const now = new Date();
                 this.selectedYear = now.getFullYear();
                 this.selectedMonth = now.getMonth();
-                
-                // Cek data lokal
                 const stored = localStorage.getItem('wealthData_v2');
-                if (stored) {
-                    this.data = JSON.parse(stored);
-                } else {
-                    this.data = []; // Start empty
-                }
-                
+                this.data = stored ? JSON.parse(stored) : [];
                 this.switchTab('dashboard');
                 this.renderMonthPicker();
-                
-                // Sync otomatis saat buka jika ada URL
                 if(this.sheetUrl) this.pullData(true);
             },
 
-            // --- NAVIGATION ---
-            switchTab(tab) {
-                this.activeTab = tab;
-                ['dashboard', 'catat', 'rekap'].forEach(v => {
-                    document.getElementById(`view-${v}`).classList.add('hidden');
-                    document.getElementById(`nav-${v}`).className = "w-full flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 hover:text-white transition-all";
-                });
-                document.getElementById(`view-${tab}`).classList.remove('hidden');
-                document.getElementById(`nav-${tab}`).className = "w-full flex items-center px-4 py-3 rounded-lg bg-slate-800 text-gold font-medium transition-all";
-
-                if (tab === 'dashboard') this.renderDashboard();
-                if (tab === 'catat') this.renderCatat();
-                if (tab === 'rekap') this.renderRekap();
-            },
-
-            // --- DATA LOGIC ---
-            calculate() {
-                let balances = { 'Bank Jatim': 0, 'Cash': 0, 'GoPay': 0, 'SeaBank': 0, inBankJatim: 0, outCash: 0, outGoPay: 0, outSeaBank: 0 };
-                let categoriesTotal = { 'Bank Jatim': {}, 'Cash': {}, 'GoPay': {}, 'SeaBank': {} };
-
-                this.data.forEach(trx => {
-                    const info = this.categories[trx.kat];
-                    if(!info) return;
-
-                    if (info.parent === 'Bank Jatim') {
-                        if (info.type === 'in') { balances['Bank Jatim'] += trx.nominal; balances.inBankJatim += trx.nominal; }
-                        else if (info.type === 'out') balances['Bank Jatim'] -= trx.nominal;
-                    } 
-                    else if (info.type === 'transfer') {
-                        balances['Bank Jatim'] -= trx.nominal;
-                        balances[info.parent] += trx.nominal;
-                        categoriesTotal['Bank Jatim'][trx.kat] = (categoriesTotal['Bank Jatim'][trx.kat] || 0) + trx.nominal;
-                    }
-                    else if (info.parent === 'Cash') {
-                        if (info.type === 'in') balances['Cash'] += trx.nominal;
-                        else if (info.type === 'out') { balances['Cash'] -= trx.nominal; balances.outCash += trx.nominal; }
-                    }
-                    else if (info.parent === 'GoPay') {
-                        if (info.type === 'in') balances['GoPay'] += trx.nominal;
-                        else if (info.type === 'out') { balances['GoPay'] -= trx.nominal; balances.outGoPay += trx.nominal; }
-                    }
-                    else if (info.parent === 'SeaBank') {
-                        if (info.type === 'in') balances['SeaBank'] += trx.nominal;
-                        else if (info.type === 'out') { balances['SeaBank'] -= trx.nominal; balances.outSeaBank += trx.nominal; }
-                    }
-
-                    if (info.type === 'out') {
-                        categoriesTotal[info.parent][trx.kat] = (categoriesTotal[info.parent][trx.kat] || 0) + trx.nominal;
-                    }
-                });
-
-                return { balances, categoriesTotal };
+            // Fungsi generate ID unik: 9 digit, diawali huruf
+            generateUniqueId() {
+                const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                const allChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let res = letters.charAt(Math.floor(Math.random() * letters.length));
+                for (let i = 0; i < 8; i++) {
+                    res += allChars.charAt(Math.floor(Math.random() * allChars.length));
+                }
+                return res;
             },
 
             formatRp(n) {
@@ -462,39 +399,78 @@
                 const t = document.getElementById('toast');
                 const tc = document.getElementById('toast-content');
                 tc.innerText = msg;
-                tc.className = isError ? "bg-red-500/90 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center border border-red-400" : "bg-slate-800/90 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center border border-slate-700";
+                tc.className = isError ? "bg-red-500 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center" : "bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center";
                 t.classList.remove('translate-x-full');
                 setTimeout(() => t.classList.add('translate-x-full'), 3000);
             },
 
-            // --- DASHBOARD RENDER ---
+            switchTab(tab) {
+                this.activeTab = tab;
+                ['dashboard', 'catat', 'rekap'].forEach(v => {
+                    document.getElementById(`view-${v}`).classList.add('hidden');
+                    document.getElementById(`nav-${v}`).classList.remove('bg-slate-800', 'text-gold');
+                });
+                document.getElementById(`view-${tab}`).classList.remove('hidden');
+                document.getElementById(`nav-${tab}`).classList.add('bg-slate-800', 'text-gold');
+                if (tab === 'dashboard') this.renderDashboard();
+                if (tab === 'catat') this.renderCatat();
+                if (tab === 'rekap') this.renderRekap();
+            },
+
+            calculate() {
+                let balances = { 'Bank Jatim': 0, 'Cash': 0, 'GoPay': 0, 'SeaBank': 0, inBankJatim: 0, outCash: 0, outGoPay: 0, outSeaBank: 0 };
+                let categoriesTotal = { 'Bank Jatim': {}, 'Cash': {}, 'GoPay': {}, 'SeaBank': {} };
+                this.data.forEach(trx => {
+                    const info = this.categories[trx.kat];
+                    if(!info) return;
+                    const val = parseInt(trx.nominal) || 0;
+                    if (info.parent === 'Bank Jatim') {
+                        if (info.type === 'in') { balances['Bank Jatim'] += val; balances.inBankJatim += val; }
+                        else if (info.type === 'out') balances['Bank Jatim'] -= val;
+                    } 
+                    else if (info.type === 'transfer') {
+                        balances['Bank Jatim'] -= val;
+                        balances[info.parent] += val;
+                        categoriesTotal['Bank Jatim'][trx.kat] = (categoriesTotal['Bank Jatim'][trx.kat] || 0) + val;
+                    }
+                    else if (info.parent === 'Cash') {
+                        if (info.type === 'in') balances['Cash'] += val;
+                        else if (info.type === 'out') { balances['Cash'] -= val; balances.outCash += val; }
+                    }
+                    else if (info.parent === 'GoPay') {
+                        if (info.type === 'in') balances['GoPay'] += val;
+                        else if (info.type === 'out') { balances['GoPay'] -= val; balances.outGoPay += val; }
+                    }
+                    else if (info.parent === 'SeaBank') {
+                        if (info.type === 'in') balances['SeaBank'] += val;
+                        else if (info.type === 'out') { balances['SeaBank'] -= val; balances.outSeaBank += val; }
+                    }
+                    if (info.type === 'out') { categoriesTotal[info.parent][trx.kat] = (categoriesTotal[info.parent][trx.kat] || 0) + val; }
+                });
+                return { balances, categoriesTotal };
+            },
+
             renderDashboard() {
                 const { balances, categoriesTotal } = this.calculate();
-                
                 document.getElementById('dash-jatim').innerText = this.formatRp(balances['Bank Jatim']);
                 document.getElementById('dash-cash').innerText = this.formatRp(balances['Cash']);
                 document.getElementById('dash-gopay').innerText = this.formatRp(balances['GoPay']);
                 document.getElementById('dash-seabank').innerText = this.formatRp(balances['SeaBank']);
-
                 document.getElementById('dash-total-in').innerText = this.formatRp(balances.inBankJatim);
                 const totalSaldo = balances['Bank Jatim'] + balances['Cash'] + balances['GoPay'] + balances['SeaBank'];
                 document.getElementById('dash-total-saldo').innerText = this.formatRp(totalSaldo);
-
                 this.renderCharts(balances, categoriesTotal);
 
-                // Rincian List
                 let rHtml = '';
                 ['Bank Jatim', 'Cash', 'GoPay', 'SeaBank'].forEach(parent => {
                     const items = categoriesTotal[parent];
                     const keys = Object.keys(items);
                     let color = parent === 'Bank Jatim' ? 'text-jatim' : (parent === 'Cash' ? 'text-cash' : (parent === 'GoPay' ? 'text-gopay' : 'text-seabank'));
-                    
-                    let rows = keys.map(k => `<div class="flex justify-between text-[11px] mb-1.5"><span class="text-slate-500">Alokasi ${k}</span><span class="text-white">${this.formatRp(items[k])}</span></div>`).join('');
-                    rHtml += `<div><h5 class="text-xs font-bold ${color} mb-3 uppercase tracking-tighter">${parent}</h5>${rows || '<p class="text-[10px] italic text-slate-600">Belum ada transaksi</p>'}</div>`;
+                    let rows = keys.map(k => `<div class="flex justify-between text-[11px] mb-1.5"><span class="text-slate-500">${k}</span><span class="text-white">${this.formatRp(items[k])}</span></div>`).join('');
+                    rHtml += `<div><h5 class="text-xs font-bold ${color} mb-3 uppercase">${parent}</h5>${rows || '<p class="text-[10px] italic text-slate-600">Nihil</p>'}</div>`;
                 });
                 document.getElementById('rincian-kategori-list').innerHTML = rHtml;
 
-                // Recent Table
                 const recent = [...this.data].sort((a,b) => this.parseDate(b.tanggal) - this.parseDate(a.tanggal)).slice(0, 5);
                 document.getElementById('table-recent').innerHTML = recent.map(trx => this.generateRow(trx)).join('');
             },
@@ -503,9 +479,8 @@
                 if(this.charts.bar) this.charts.bar.destroy();
                 if(this.charts.p1) this.charts.p1.destroy();
                 if(this.charts.p2) this.charts.p2.destroy();
-
                 const common = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
-
+                
                 this.charts.bar = new Chart(document.getElementById('chart-pengeluaran'), {
                     type: 'bar',
                     data: {
@@ -522,7 +497,7 @@
                 this.charts.p1 = new Chart(document.getElementById('chart-pusat'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Bank Jatim', 'Alokasi Cash', 'Alokasi GoPay', 'Alokasi SeaBank'],
+                        labels: ['Sisa', 'Cash', 'GoPay', 'SeaBank'],
                         datasets: [{ data: [b['Bank Jatim'], tCash, tGopay, tSea], backgroundColor: ['#c41b38', '#a9bf7f', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
                     },
                     options: common
@@ -531,22 +506,20 @@
                 this.charts.p2 = new Chart(document.getElementById('chart-total'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Bank Jatim (Salary/Inc)', 'Cash (Out)', 'GoPay (Out)', 'SeaBank (Out)'],
+                        labels: ['In', 'Out Cash', 'Out GoPay', 'Out SeaBank'],
                         datasets: [{ data: [b.inBankJatim, b.outCash, b.outGoPay, b.outSeaBank], backgroundColor: ['#c41b38', '#a9bf7f', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
                     },
                     options: common
                 });
             },
 
-            // --- CATAT DANA RENDER ---
             renderCatat() {
                 const hist = [...this.data].sort((a,b) => this.parseDate(b.tanggal) - this.parseDate(a.tanggal));
                 document.getElementById('list-histori').innerHTML = hist.map(trx => {
                     const info = this.categories[trx.kat];
                     const isMin = info.type === 'out' || info.type === 'transfer' || trx.kat === 'Tax';
-                    const color = isMin ? 'text-slate-500' : 'text-red-500';
                     return `
-                    <div class="flex justify-between items-center bg-slate-800/20 p-3 rounded-xl border border-slate-800/50 group transition-all hover:border-slate-700">
+                    <div class="flex justify-between items-center bg-slate-800/20 p-3 rounded-xl border border-slate-800/50 group hover:border-slate-700">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="text-[10px] text-slate-500 font-bold">${trx.tanggal}</span>
@@ -555,47 +528,32 @@
                             <p class="text-sm text-white">${trx.detail}</p>
                         </div>
                         <div class="flex items-center gap-4">
-                            <p class="text-sm font-semibold ${color}">${isMin ? '-' : '+'} ${this.formatRp(trx.nominal)}</p>
-                            <button onclick="app.editTrx(${trx.id})" class="text-slate-600 hover:text-gold opacity-0 group-hover:opacity-100"><i class="ph ph-pencil-simple"></i></button>
+                            <p class="text-sm font-semibold ${isMin ? 'text-slate-300' : 'text-red-500'}">${isMin ? '-' : '+'} ${this.formatRp(trx.nominal)}</p>
+                            <button onclick="app.editTrx('${trx.id}')" class="text-slate-600 hover:text-gold opacity-0 group-hover:opacity-100"><i class="ph ph-pencil-simple"></i></button>
                         </div>
                     </div>`;
-                }).join('') || '<p class="text-center text-slate-600 py-10">Belum ada transaksi.</p>';
-                
-                if(!document.getElementById('input-tanggal').value) {
-                    document.getElementById('input-tanggal').value = new Date().toISOString().split('T')[0];
-                }
+                }).join('') || '<p class="text-center text-slate-600 py-10">Kosong.</p>';
             },
 
-            // --- REKAPITULASI ---
             renderRekap() {
-                const monthName = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(new Date(this.selectedYear, this.selectedMonth));
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                const monthName = months[this.selectedMonth];
                 const monthKey = `${monthName} ${this.selectedYear}`;
-                
                 document.getElementById('display-rekap-month').innerText = `${monthName} ${this.selectedYear}`;
-                document.getElementById('rekap-pengeluaran-label').innerText = `Total Pengeluaran ${monthKey}`;
                 document.getElementById('rekap-table-title').innerText = `Rincian Transaksi Bulan ${monthKey}`;
-
                 const filtered = this.data.filter(trx => trx.tanggal.includes(monthKey));
                 let totalOutMonth = 0;
-                filtered.forEach(t => {
-                    if(this.categories[t.kat]?.type === 'out') totalOutMonth += t.nominal;
-                });
-
+                filtered.forEach(t => { if(this.categories[t.kat]?.type === 'out') totalOutMonth += parseInt(t.nominal); });
                 const { balances } = this.calculate();
                 const currentSaldo = balances['Bank Jatim'] + balances['Cash'] + balances['GoPay'] + balances['SeaBank'];
                 const surplus = currentSaldo - totalOutMonth;
-
                 document.getElementById('rekap-saldo').innerText = this.formatRp(currentSaldo);
-                document.getElementById('rekap-pengeluaran').innerText = this.formatRp(totalOutOutMonth = totalOutMonth);
-                document.getElementById('rekap-surplus').innerText = (surplus >= 0 ? '+' : '') + this.formatRp(surplus);
-                document.getElementById('rekap-surplus').className = `text-2xl font-bold print-black ${surplus >= 0 ? 'text-gold' : 'text-red-500'}`;
-
-                document.getElementById('table-rekap').innerHTML = filtered.sort((a,b) => this.parseDate(b.tanggal) - this.parseDate(a.tanggal)).map(trx => this.generateRow(trx)).join('') || '<tr><td colspan="5" class="text-center py-10 text-slate-600 italic">Data kosong.</td></tr>';
+                document.getElementById('rekap-pengeluaran').innerText = this.formatRp(totalOutMonth);
+                document.getElementById('rekap-surplus').innerText = this.formatRp(surplus);
+                document.getElementById('table-rekap').innerHTML = filtered.sort((a,b) => this.parseDate(b.tanggal) - this.parseDate(a.tanggal)).map(trx => this.generateRow(trx)).join('');
             },
 
-            // --- DATE UTILS ---
             parseDate(str) {
-                // "09 April 2026"
                 const parts = str.split(' ');
                 if(parts.length < 3) return new Date(0);
                 const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -604,58 +562,71 @@
             },
 
             formatDisplayDate(isoDate) {
+                if(!isoDate) return "";
                 const d = new Date(isoDate);
-                const formatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-                return formatter.format(d); // "09 April 2026"
+                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+                return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
             },
 
-            // --- ACTIONS ---
             async handleFormSubmit(e) {
                 e.preventDefault();
                 const id = document.getElementById('input-id').value;
                 const tanggalRaw = document.getElementById('input-tanggal').value;
                 const kat = document.getElementById('input-kategori').value;
-                const nominal = parseInt(document.getElementById('input-nominal').value.replace(/\D/g, '')) || 0;
+                const nominalValue = document.getElementById('input-nominal').value.replace(/\D/g, '');
+                const nominal = parseInt(nominalValue) || 0;
                 const detail = document.getElementById('input-detail').value;
-
                 const tanggal = this.formatDisplayDate(tanggalRaw);
+                
                 let newData = [...this.data];
-
+                
                 if(id) {
-                    const idx = newData.findIndex(x => x.id == id);
-                    if(idx > -1) newData[idx] = { id: parseInt(id), tanggal, kat, nominal, detail };
+                    // Update data yang ada
+                    const idx = newData.findIndex(x => x.id === id);
+                    if(idx > -1) {
+                        newData[idx] = { id, tanggal, kat, nominal, detail };
+                    }
                 } else {
-                    const nextId = newData.length ? Math.max(...newData.map(x => x.id)) + 1 : 1;
-                    newData.push({ id: nextId, tanggal, kat, nominal, detail });
+                    // Tambah data baru
+                    const newTrx = { 
+                        id: this.generateUniqueId(), 
+                        tanggal, 
+                        kat, 
+                        nominal, 
+                        detail 
+                    };
+                    newData.push(newTrx);
                 }
 
-                // Push to sheet first
+                // SINKRONISASI OTOMATIS KE CLOUD
                 if(this.sheetUrl) {
-                    this.showToast("Menyimpan ke Spreadsheet...");
+                    this.showToast("Menyimpan ke Cloud...");
                     const success = await this.pushData(newData);
-                    if(!success) return; // Stop if failed
+                    if(!success) {
+                        this.showToast("Gagal memperbarui Spreadsheet!", true);
+                        return;
+                    }
                 }
 
                 this.data = newData;
                 localStorage.setItem('wealthData_v2', JSON.stringify(this.data));
                 this.resetForm();
                 this.switchTab(this.activeTab);
-                this.showToast("Transaksi Berhasil Disimpan!");
+                this.showToast("Data Berhasil Disinkronkan!");
             },
 
             editTrx(id) {
                 const trx = this.data.find(x => x.id === id);
                 if(!trx) return;
-                
-                // Convert back string date to iso for input
-                const dateObj = this.parseDate(trx.tanggal);
-                const isoDate = dateObj.toISOString().split('T')[0];
-
+                const d = this.parseDate(trx.tanggal);
                 document.getElementById('input-id').value = trx.id;
-                document.getElementById('input-tanggal').value = isoDate;
+                document.getElementById('input-tanggal').value = d.toISOString().split('T')[0];
                 document.getElementById('input-kategori').value = trx.kat;
                 document.getElementById('input-nominal').value = new Intl.NumberFormat('id-ID').format(trx.nominal);
                 document.getElementById('input-detail').value = trx.detail;
+                
+                // Ubah teks tombol submit
+                document.getElementById('btn-submit').innerText = "Simpan Perubahan";
                 
                 this.switchTab('catat');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -665,50 +636,39 @@
                 document.getElementById('input-id').value = '';
                 document.getElementById('form-catat').reset();
                 document.getElementById('input-tanggal').value = new Date().toISOString().split('T')[0];
+                document.getElementById('btn-submit').innerText = "Simpan Transaksi";
             },
 
             generateRow(trx) {
                 const info = this.categories[trx.kat];
                 const isMin = info.type === 'out' || info.type === 'transfer' || trx.kat === 'Tax';
-                const sign = isMin ? '-' : '+';
-                const numColor = isMin ? 'text-slate-300' : 'text-red-500';
-                
                 return `
-                <tr class="hover:bg-slate-800/30 group transition-all print:hover:bg-transparent">
+                <tr class="hover:bg-slate-800/30 group">
                     <td class="px-6 py-4 text-slate-400 font-medium">${trx.tanggal}</td>
-                    <td class="px-6 py-4 font-normal uppercase" style="color: ${info.color}">${trx.kat}</td>
+                    <td class="px-6 py-4 uppercase" style="color: ${info.color}">${trx.kat}</td>
                     <td class="px-6 py-4 text-white">${trx.detail}</td>
-                    <td class="px-6 py-4 text-right font-semibold ${numColor} print-black">${sign} ${this.formatRp(trx.nominal)}</td>
+                    <td class="px-6 py-4 text-right font-semibold ${isMin ? 'text-slate-300' : 'text-red-500'}">${isMin ? '-' : '+'} ${this.formatRp(trx.nominal)}</td>
                     <td class="px-6 py-4 text-center no-print">
-                        <button onclick="app.editTrx(${trx.id})" class="text-slate-600 hover:text-gold opacity-0 group-hover:opacity-100 transition-all"><i class="ph ph-pencil-simple text-lg"></i></button>
+                        <button onclick="app.editTrx('${trx.id}')" class="text-slate-600 hover:text-gold opacity-0 group-hover:opacity-100 transition-all"><i class="ph ph-pencil-simple text-lg"></i></button>
                     </td>
                 </tr>`;
             },
 
-            // --- SPREADSHEET SYNC ---
             async pullData(silent = false) {
-                if(!this.sheetUrl) {
-                    if(!silent) { this.showToast("URL Spreadsheet belum diatur", true); this.openSettings(); }
-                    return;
-                }
-
+                if(!this.sheetUrl) return;
                 const icon = document.getElementById('sync-icon');
-                icon.classList.add('ph-spin');
-
+                if(icon) icon.classList.add('ph-spin');
                 try {
                     const res = await fetch(this.sheetUrl);
                     const cloudData = await res.json();
-                    
-                    this.data = cloudData.map(d => ({...d, nominal: parseInt(d.nominal)}));
+                    this.data = cloudData;
                     localStorage.setItem('wealthData_v2', JSON.stringify(this.data));
-                    
                     this.switchTab(this.activeTab);
-                    if(!silent) this.showToast("Data Berhasil Disinkronkan!");
+                    if(!silent) this.showToast("Sinkron Berhasil!");
                 } catch (err) {
-                    console.error(err);
-                    if(!silent) this.showToast("Gagal menarik data", true);
+                    if(!silent) this.showToast("Gagal Sync", true);
                 } finally {
-                    icon.classList.remove('ph-spin');
+                    if(icon) icon.classList.remove('ph-spin');
                 }
             },
 
@@ -721,53 +681,30 @@
                     const result = await res.json();
                     return result.status === 'success';
                 } catch (err) {
-                    console.error(err);
-                    this.showToast("Gagal menyimpan ke Cloud", true);
                     return false;
                 }
             },
 
-            // --- MONTH PICKER LOGIC ---
-            toggleMonthPicker() {
-                document.getElementById('month-picker-ui').classList.toggle('hidden');
-                this.renderMonthPicker();
-            },
-            changeYear(v) {
-                this.selectedYear += v;
-                this.renderMonthPicker();
-            },
-            selectMonth(m) {
-                this.selectedMonth = m;
-                document.getElementById('month-picker-ui').classList.add('hidden');
-                this.renderRekap();
-            },
+            toggleMonthPicker() { document.getElementById('month-picker-ui').classList.toggle('hidden'); },
+            changeYear(v) { this.selectedYear += v; this.renderMonthPicker(); },
+            selectMonth(m) { this.selectedMonth = m; document.getElementById('month-picker-ui').classList.add('hidden'); this.renderRekap(); },
             renderMonthPicker() {
                 document.getElementById('picker-year').innerText = this.selectedYear;
-                const items = document.querySelectorAll('.month-item');
-                items.forEach((item, idx) => {
+                document.querySelectorAll('.month-item').forEach((item, idx) => {
                     item.className = idx === this.selectedMonth ? "month-item month-active" : "month-item";
                 });
             },
-
             openSettings() { document.getElementById('input-sheet-url').value = this.sheetUrl; document.getElementById('modal-settings').classList.remove('hidden'); },
             closeSettings() { document.getElementById('modal-settings').classList.add('hidden'); },
             saveSettings() { 
                 this.sheetUrl = document.getElementById('input-sheet-url').value.trim(); 
                 localStorage.setItem('wealthSheetUrl', this.sheetUrl); 
                 this.closeSettings(); 
-                this.showToast("Pengaturan Disimpan!");
                 if(this.sheetUrl) this.pullData();
             }
         };
 
         window.onload = () => app.init();
-
-        // Close month picker on click outside
-        window.addEventListener('click', (e) => {
-            const picker = document.getElementById('month-picker-ui');
-            const btn = document.getElementById('month-picker-btn');
-            if(!picker.contains(e.target) && !btn.contains(e.target)) picker.classList.add('hidden');
-        });
     </script>
 </body>
 </html>
