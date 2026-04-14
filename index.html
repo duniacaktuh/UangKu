@@ -3,196 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WealthFinance - Mobile Responsive</title>
+    <title>Pencatatan Keuangan Harian</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#111827',
+                        card: '#1f2937',
+                        bankjatim: '#D50C13',
+                        cash: '#85BB65',
+                        gopay: '#26bad1',
+                        seabank: '#f97316',
+                        gold: '#fbbf24',
+                        accent: '#3b82f6', // Biru untuk Pro, Wallet, & Menu
+                        expense: '#fcfcfd'  // Warna nominal pengeluaran baru
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f1523; color: #e5e7eb; }
         
-        body { font-family: 'Inter', sans-serif; background-color: #0b1120; color: #94a3b8; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(51, 65, 85, 0.5); }
-        .text-jatim { color: #c41b38; }
-        .text-cash { color: #a9bf7f; }
-        .text-gopay { color: #00ABD6; }
-        .text-seabank { color: #db773d; }
-        .text-gold { color: #eab308; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
 
-        .month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; }
-        @media (min-width: 640px) { .month-grid { grid-template-columns: repeat(4, 1fr); } }
-        
-        .month-item { padding: 8px; text-align: center; border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 13px; }
-        .month-item:hover { background: rgba(234, 179, 8, 0.2); color: #eab308; }
-        .month-active { background: #3b82f6 !important; color: white !important; }
-
-        /* Mobile Sidebar Transitions */
-        #sidebar { transition: transform 0.3s ease-in-out; }
-        @media (max-width: 1023px) {
-            #sidebar.closed { transform: translateX(-100%); }
-            #sidebar.open { transform: translateX(0); }
+        .glass-card {
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
         }
 
-        @media print {
-            #sidebar, #topbar, .no-print, #mobile-nav-toggle { display: none !important; }
-            #main-content { margin: 0 !important; width: 100% !important; background: white !important; }
-            .glass-panel { border: 1px solid #e2e8f0 !important; background: white !important; box-shadow: none !important; }
-            body, .text-slate-300, .text-slate-400 { color: black !important; }
-            .print-black { color: black !important; }
+        .input-dark {
+            background: #111827; border: 1px solid #374151; color: white; border-radius: 8px; padding: 10px; width: 100%; outline: none; transition: border 0.3s;
         }
+        .input-dark:focus { border-color: #3b82f6; }
+
+        .btn-primary { background: #3b82f6; color: white; font-weight: 600; border-radius: 8px; padding: 10px 20px; transition: 0.3s; }
+        .btn-primary:hover { background: #2563eb; }
+        
+        .btn-secondary { background: transparent; border: 1px solid #4b5563; color: white; border-radius: 8px; padding: 10px 20px; transition: 0.3s; }
+        .btn-secondary:hover { background: #374151; }
+
+        .nav-item { cursor: pointer; padding: 8px 16px; border-radius: 8px; transition: 0.3s; color: #9ca3af; font-weight: 500;}
+        .nav-item.active { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .nav-item:hover:not(.active) { color: white; background: rgba(59, 130, 246, 0.05); }
+
+        .cat-bg-bankjatim { background: rgba(213, 12, 19, 0.15); }
+        .cat-bg-cash { background: rgba(133, 187, 101, 0.15); }
+        .cat-bg-gopay { background: rgba(38, 186, 209, 0.15); }
+        .cat-bg-seabank { background: rgba(249, 115, 22, 0.15); }
+
+        #monthPickerModal { display: none; }
+        #monthPickerModal.active { display: flex; }
     </style>
 </head>
-<body class="h-screen flex overflow-hidden">
+<body class="min-h-screen flex flex-col relative overflow-x-hidden">
 
-    <!-- Mobile Navigation Toggle -->
-    <button id="mobile-nav-toggle" onclick="app.toggleSidebar()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-gold text-black w-14 h-14 rounded-full shadow-2xl flex items-center justify-center text-2xl">
-        <i id="menu-icon" class="ph ph-list"></i>
-    </button>
-
-    <!-- Overlay for mobile sidebar -->
-    <div id="sidebar-overlay" onclick="app.toggleSidebar()" class="fixed inset-0 bg-black/60 z-30 hidden lg:hidden"></div>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-[#111827] border-r border-slate-800 flex flex-col justify-between shrink-0 h-full z-40 closed lg:translate-x-0">
-        <div>
-            <div class="h-16 flex items-center px-6 border-b border-slate-800 mb-6">
-                <i class="ph-fill ph-diamonds-four text-gold text-2xl mr-2"></i>
-                <h1 class="text-white font-bold text-lg">WealthFinance</h1>
+    <!-- Top Navigation -->
+    <header class="glass-card m-4 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <i class="ph-fill ph-wallet text-accent text-3xl"></i>
+            <h1 class="text-xl font-bold text-white hidden sm:block">FinTrack<span class="text-accent">Pro</span></h1>
+        </div>
+        
+        <nav class="flex gap-2 sm:gap-6">
+            <div class="nav-item active flex items-center gap-2" onclick="switchTab('dashboard')">
+                <i class="ph ph-squares-four text-xl"></i> <span class="hidden sm:inline">Dashboard</span>
             </div>
-            <nav class="px-4 space-y-2">
-                <button onclick="app.switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-all">
-                    <i class="ph ph-squares-four text-xl mr-3"></i> Dashboard
-                </button>
-                <button onclick="app.switchTab('catat')" id="nav-catat" class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-all">
-                    <i class="ph ph-plus-circle text-xl mr-3"></i> Catat Dana
-                </button>
-                <button onclick="app.switchTab('rekap')" id="nav-rekap" class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-all">
-                    <i class="ph ph-file-text text-xl mr-3"></i> Rekapitulasi
-                </button>
-            </nav>
-        </div>
-        <div class="px-4 pb-8 space-y-2">
-            <button onclick="app.pullData()" class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-all">
-                <i id="sync-icon" class="ph ph-arrows-clockwise text-xl mr-3"></i> Sinkronisasi
+            <div class="nav-item flex items-center gap-2" onclick="switchTab('catat')">
+                <i class="ph ph-plus-circle text-xl"></i> <span class="hidden sm:inline">Catat Dana</span>
+            </div>
+            <div class="nav-item flex items-center gap-2" onclick="switchTab('rekap')">
+                <i class="ph ph-chart-bar text-xl"></i> <span class="hidden sm:inline">Rekapitulasi</span>
+            </div>
+        </nav>
+
+        <div class="flex gap-4 items-center">
+            <button onclick="syncData()" class="text-gray-400 hover:text-gold transition tooltip" title="Ambil Data dari Spreadsheet">
+                <i class="ph ph-arrows-clockwise text-2xl" id="syncIcon"></i>
             </button>
-            <button onclick="app.openSettings()" class="w-full flex items-center px-4 py-3 rounded-lg hover:bg-slate-800 transition-all">
-                <i class="ph ph-gear text-xl mr-3"></i> Pengaturan
+            <button onclick="openSettings()" class="text-gray-400 hover:text-white transition tooltip" title="Pengaturan Spreadsheet">
+                <i class="ph ph-gear text-2xl"></i>
             </button>
         </div>
-    </aside>
+    </header>
 
-    <main id="main-content" class="flex-1 overflow-y-auto relative p-4 md:p-8">
-        <!-- Toast Notification -->
-        <div id="toast" class="fixed top-6 right-6 z-[60] transform translate-x-full transition-transform duration-300 pointer-events-none">
-            <div id="toast-content" class="bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center text-sm md:text-base"></div>
-        </div>
+    <main class="flex-1 px-4 sm:px-8 pb-10 max-w-7xl mx-auto w-full">
 
-        <!-- VIEW: DASHBOARD -->
-        <div id="view-dashboard" class="space-y-6">
+        <!-- ================= DASHBOARD ================= -->
+        <section id="dashboard" class="space-y-6 block">
+            <!-- Balances -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="glass-panel rounded-2xl p-5 relative overflow-hidden group">
-                    <p class="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Bank Jatim</p>
-                    <h3 class="text-xl md:text-2xl font-bold text-white" id="dash-jatim">Rp 0</h3>
-                    <i class="ph-fill ph-bank text-jatim opacity-10 text-4xl absolute -right-1 -bottom-1"></i>
+                <div class="glass-card p-6 border-t-4 border-bankjatim relative overflow-hidden group">
+                    <p class="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">Bank Jatim</p>
+                    <h2 class="text-2xl font-bold text-white" id="bal-jatim">Rp 0</h2>
+                    <i class="ph-fill ph-bank absolute -bottom-4 -right-2 text-6xl text-bankjatim opacity-20 group-hover:scale-110 transition"></i>
                 </div>
-                <div class="glass-panel rounded-2xl p-5 relative overflow-hidden group">
-                    <p class="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">Cash</p>
-                    <h3 class="text-xl md:text-2xl font-bold text-white" id="dash-cash">Rp 0</h3>
-                    <i class="ph-fill ph-wallet text-cash opacity-10 text-4xl absolute -right-1 -bottom-1"></i>
+                <div class="glass-card p-6 border-t-4 border-cash relative overflow-hidden group">
+                    <p class="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">Cash</p>
+                    <h2 class="text-2xl font-bold text-white" id="bal-cash">Rp 0</h2>
+                    <i class="ph-fill ph-wallet absolute -bottom-4 -right-2 text-6xl text-cash opacity-20 group-hover:scale-110 transition"></i>
                 </div>
-                <div class="glass-panel rounded-2xl p-5 relative overflow-hidden group">
-                    <p class="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">GoPay</p>
-                    <h3 class="text-xl md:text-2xl font-bold text-white" id="dash-gopay">Rp 0</h3>
-                    <i class="ph-fill ph-device-mobile text-gopay opacity-10 text-4xl absolute -right-1 -bottom-1"></i>
+                <div class="glass-card p-6 border-t-4 border-gopay relative overflow-hidden group">
+                    <p class="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">GoPay</p>
+                    <h2 class="text-2xl font-bold text-white" id="bal-gopay">Rp 0</h2>
+                    <i class="ph-fill ph-device-mobile absolute -bottom-4 -right-2 text-6xl text-gopay opacity-20 group-hover:scale-110 transition"></i>
                 </div>
-                <div class="glass-panel rounded-2xl p-5 relative overflow-hidden group">
-                    <p class="text-[10px] font-semibold text-slate-400 mb-1 uppercase tracking-wider">SeaBank</p>
-                    <h3 class="text-xl md:text-2xl font-bold text-white" id="dash-seabank">Rp 0</h3>
-                    <i class="ph-fill ph-piggy-bank text-seabank opacity-10 text-4xl absolute -right-1 -bottom-1"></i>
+                <div class="glass-card p-6 border-t-4 border-seabank relative overflow-hidden group">
+                    <p class="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">SeaBank</p>
+                    <h2 class="text-2xl font-bold text-white" id="bal-seabank">Rp 0</h2>
+                    <i class="ph-fill ph-piggy-bank absolute -bottom-4 -right-2 text-6xl text-seabank opacity-20 group-hover:scale-110 transition"></i>
                 </div>
             </div>
 
+            <!-- Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="glass-panel rounded-2xl p-6">
-                    <h4 class="text-xs font-semibold mb-6 flex items-center uppercase tracking-widest"><i class="ph ph-chart-bar mr-2 text-gold"></i> Aliran Dana</h4>
-                    <div class="h-48 md:h-56"><canvas id="chart-pengeluaran"></canvas></div>
-                </div>
-                <div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative min-h-[250px]">
-                    <h4 class="absolute top-4 left-4 text-[10px] font-bold text-slate-500 uppercase">Pusat Dana</h4>
-                    <div class="h-32 w-32 md:h-40 md:w-40"><canvas id="chart-pusat"></canvas></div>
-                    <div class="mt-4 text-center">
-                        <p class="text-[9px] text-slate-500 uppercase font-bold">Total In</p>
-                        <p class="text-base font-bold text-white" id="dash-total-in">Rp 0</p>
+                <!-- Bar Chart -->
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="ph-fill ph-chart-line-up text-gold"></i>
+                        <h3 class="font-bold text-sm text-gray-300 tracking-wider">ALIRAN DANA PENGELUARAN</h3>
+                    </div>
+                    <div class="relative h-64 w-full">
+                        <canvas id="barChart"></canvas>
                     </div>
                 </div>
-                <div class="glass-panel rounded-2xl p-6 flex flex-col items-center justify-center relative min-h-[250px]">
-                    <h4 class="absolute top-4 left-4 text-[10px] font-bold text-slate-500 uppercase">Total Aktif</h4>
-                    <div class="h-32 w-32 md:h-40 md:w-40"><canvas id="chart-total"></canvas></div>
-                    <div class="mt-4 text-center">
-                        <p class="text-[9px] text-slate-500 uppercase font-bold">Total Saldo</p>
-                        <p class="text-base font-bold text-white" id="dash-total-saldo">Rp 0</p>
+                
+                <!-- Doughnut 1 -->
+                <div class="glass-card p-6 flex flex-col items-center justify-center relative">
+                    <h3 class="font-bold text-sm text-gray-400 absolute top-6 left-6">PUSAT DANA</h3>
+                    <div class="relative h-48 w-48 mt-4">
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <i class="ph-fill ph-bank text-5xl text-gray-600 opacity-20"></i>
+                        </div>
+                        <canvas id="doughnutPusat" class="relative z-10"></canvas>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="text-xs text-gray-400">TOTAL IN</p>
+                        <p class="text-lg font-bold" id="total-in-pusat">Rp 0</p>
+                    </div>
+                </div>
+
+                <!-- Doughnut 2 -->
+                <div class="glass-card p-6 flex flex-col items-center justify-center relative">
+                    <h3 class="font-bold text-sm text-gray-400 absolute top-6 left-6">TOTAL DANA AKTIF</h3>
+                    <div class="relative h-48 w-48 mt-4">
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <i class="ph-fill ph-wallet text-5xl text-gray-600 opacity-20"></i>
+                        </div>
+                        <canvas id="doughnutTotal" class="relative z-10"></canvas>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="text-xs text-gray-400">TOTAL SALDO</p>
+                        <p class="text-lg font-bold" id="total-saldo-aktif">Rp 0</p>
                     </div>
                 </div>
             </div>
 
-            <div class="glass-panel rounded-2xl p-6">
-                <h4 class="text-xs font-semibold mb-6 flex items-center uppercase tracking-widest"><i class="ph ph-list-bullets mr-2 text-gold"></i> Kategori</h4>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="rincian-kategori-list"></div>
-            </div>
-
-            <!-- Horizontal Scroll Container for Tables -->
-            <div class="glass-panel rounded-2xl overflow-hidden">
-                <div class="p-5 flex justify-between items-center border-b border-slate-800">
-                    <h4 class="text-xs font-semibold flex items-center uppercase tracking-widest"><i class="ph ph-clock mr-2 text-gold"></i> Terakhir</h4>
-                    <button onclick="app.switchTab('rekap')" class="text-[10px] font-bold text-gold hover:underline">SEMUA →</button>
+            <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                <!-- Kategori -->
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i class="ph-fill ph-list-dashes text-gold"></i>
+                        <h3 class="font-bold text-sm text-gray-300 tracking-wider">RINCIAN PENGELUARAN KATEGORI</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="rincian-kategori-container"></div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs min-w-[600px]">
-                        <thead class="bg-slate-800/50 text-slate-500 uppercase text-[9px] font-bold">
-                            <tr>
-                                <th class="px-5 py-3">Tanggal</th>
-                                <th class="px-5 py-3">Kategori</th>
-                                <th class="px-5 py-3">Detail</th>
-                                <th class="px-5 py-3 text-right">Nominal</th>
-                                <th class="px-5 py-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-recent" class="divide-y divide-slate-800"></tbody>
-                    </table>
+
+                <!-- Histori Terakhir -->
+                <div class="glass-card p-0 overflow-hidden">
+                    <div class="p-6 border-b border-gray-700 flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-fill ph-clock-counter-clockwise text-gold"></i>
+                            <h3 class="font-bold text-sm text-gray-300 tracking-wider">TERAKHIR</h3>
+                        </div>
+                        <button onclick="switchTab('rekap')" class="text-xs text-gold hover:underline flex items-center gap-1">SEMUA <i class="ph ph-arrow-right"></i></button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-400">
+                            <thead class="bg-[#1f2937] text-xs uppercase">
+                                <tr>
+                                    <th class="px-6 py-4">Tanggal</th>
+                                    <th class="px-6 py-4">Kategori</th>
+                                    <th class="px-6 py-4">Detail</th>
+                                    <th class="px-6 py-4 text-right">Nominal</th>
+                                    <th class="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700" id="table-terakhir"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- VIEW: CATAT DANA -->
-        <div id="view-catat" class="hidden space-y-6 max-w-5xl mx-auto">
-            <h2 class="text-xl font-bold text-white">Catat Transaksi</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                <div class="glass-panel rounded-2xl p-6 md:p-8">
-                    <form id="form-catat" onsubmit="app.handleFormSubmit(event)" class="space-y-4">
-                        <input type="hidden" id="input-id">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- ================= CATAT DANA ================= -->
+        <section id="catat" class="hidden h-full">
+            <h2 class="text-2xl font-bold text-white mb-6">Catat Transaksi</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="glass-card p-6 sm:p-8">
+                    <form id="formCatat" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                        <input type="hidden" id="editId" value="">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Tanggal</label>
-                                <input type="date" id="input-tanggal" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm [color-scheme:dark]">
+                                <label class="block text-xs text-gray-400 font-semibold mb-2 uppercase">Tanggal</label>
+                                <div class="relative">
+                                    <input type="date" id="inputTanggal" class="input-dark w-full appearance-none" required>
+                                    <i class="ph ph-calendar-blank absolute right-3 top-3 text-gray-400 pointer-events-none"></i>
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Kategori</label>
-                                <select id="input-kategori" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm appearance-none">
-                                    <option value="">Pilih...</option>
-                                    <optgroup label="Pusat Dana (Bank Jatim)">
-                                        <option value="Salary">Salary</option>
-                                        <option value="Bunga">Bunga</option>
-                                        <option value="Tax">Tax</option>
-                                        <option value="Cash">Alokasi ke Cash</option>
-                                        <option value="GoPay">Alokasi ke GoPay</option>
-                                        <option value="SeaBank">Alokasi ke SeaBank</option>
+                                <label class="block text-xs text-gray-400 font-semibold mb-2 uppercase">Kategori</label>
+                                <select id="inputKategori" class="input-dark" required>
+                                    <option value="" disabled selected>Pilih...</option>
+                                    <optgroup label="Pendapatan / TopUp">
+                                        <option value="Salary">Salary (Jatim)</option>
+                                        <option value="Bunga">Bunga (Jatim)</option>
+                                        <option value="Extra">Extra (Cash)</option>
+                                        <option value="Receivable">Receivable (Cash)</option>
+                                        <option value="Allowance">Allowance (GoPay)</option>
+                                        <option value="Interest">Interest (GoPay)</option>
+                                        <option value="Return">Return (SeaBank)</option>
                                     </optgroup>
-                                    <optgroup label="Cash">
-                                        <option value="Extra">Extra</option>
-                                        <option value="Receivable">Receivable</option>
+                                    <optgroup label="Alokasi dari Bank Jatim">
+                                        <option value="Cash">Ke Cash</option>
+                                        <option value="GoPay">Ke GoPay</option>
+                                        <option value="SeaBank">Ke SeaBank</option>
+                                        <option value="Tax">Tax</option>
+                                    </optgroup>
+                                    <optgroup label="Pengeluaran">
                                         <option value="B&F">B&F</option>
                                         <option value="BBM">BBM</option>
                                         <option value="Baby Gear">Baby Gear</option>
@@ -203,513 +266,455 @@
                                         <option value="MotorTax">MotorTax</option>
                                         <option value="Edible">Edible</option>
                                         <option value="Hidden Cost">Hidden Cost</option>
-                                    </optgroup>
-                                    <optgroup label="GoPay">
-                                        <option value="Allowance">Allowance</option>
-                                        <option value="Interest">Interest</option>
                                         <option value="PLN">PLN</option>
                                         <option value="BPJS">BPJS</option>
                                         <option value="PDAM">PDAM</option>
                                         <option value="Internet">Internet</option>
                                         <option value="OnLine">OnLine</option>
                                         <option value="Plausible">Plausible</option>
-                                    </optgroup>
-                                    <optgroup label="SeaBank">
-                                        <option value="Return">Return</option>
                                         <option value="ShopCart">ShopCart</option>
                                     </optgroup>
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Nominal</label>
+                            <label class="block text-xs text-gray-400 font-semibold mb-2 uppercase">Nominal</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">Rp</span>
-                                <input type="text" id="input-nominal" required class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white font-semibold text-sm" oninput="app.formatAccounting(this)">
+                                <span class="absolute left-3 top-[10px] text-gray-400">Rp</span>
+                                <input type="text" id="inputNominal" class="input-dark pl-10 text-lg font-bold" placeholder="0" oninput="formatCurrencyInput(this)" required>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Detail</label>
-                            <textarea id="input-detail" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm resize-none"></textarea>
+                            <label class="block text-xs text-gray-400 font-semibold mb-2 uppercase">Detail</label>
+                            <textarea id="inputDetail" rows="3" class="input-dark resize-none" placeholder="Tulis rincian..."></textarea>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                            <button type="submit" id="btn-submit" class="flex-1 bg-gold hover:bg-yellow-500 text-black font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg shadow-gold/10">Simpan</button>
-                            <button type="button" onclick="app.resetForm()" class="px-6 py-3.5 border border-slate-700 rounded-xl text-white font-medium hover:bg-slate-800">Batal</button>
+                        <div class="flex gap-4 pt-4">
+                            <button type="submit" class="btn-primary flex-1 py-3 text-lg">Simpan</button>
+                            <button type="button" onclick="resetForm()" class="btn-secondary px-8">Batal</button>
                         </div>
                     </form>
                 </div>
-                <!-- Scrollable Histori -->
-                <div class="glass-panel rounded-2xl p-6 flex flex-col max-h-[500px]">
-                    <h4 class="text-[10px] font-bold text-white mb-6 uppercase tracking-widest">Histori</h4>
-                    <div class="space-y-3 overflow-y-auto flex-1 pr-2" id="list-histori"></div>
+                <div class="glass-card p-6 flex flex-col h-[600px]">
+                    <h3 class="font-bold text-sm text-gray-300 tracking-wider mb-4">HISTORI</h3>
+                    <div class="overflow-y-auto flex-1 pr-2 space-y-3" id="histori-container"></div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- VIEW: REKAPITULASI -->
-        <div id="view-rekap" class="hidden space-y-6 max-w-6xl mx-auto print:max-w-full">
-            <div class="flex flex-col gap-4 border-b border-slate-800 pb-6 print:border-none">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-xl md:text-2xl font-bold text-white print-black">Rekapitulasi</h2>
-                        <p class="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-widest">Laporan Bulanan</p>
-                    </div>
-                    <button onclick="window.print()" class="no-print bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                        <i class="ph ph-printer text-xl"></i>
-                    </button>
+        <!-- ================= REKAPITULASI ================= -->
+        <section id="rekap" class="hidden">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">Rekapitulasi</h2>
+                    <p class="text-xs text-gray-400 uppercase tracking-widest mt-1">Laporan Bulanan</p>
                 </div>
-                
-                <div class="flex items-center gap-3 no-print">
-                    <div class="relative flex-1">
-                        <button onclick="app.toggleMonthPicker()" id="month-picker-btn" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm flex items-center justify-between">
-                            <span id="display-rekap-month">April 2026</span>
-                            <i class="ph ph-calendar-blank"></i>
-                        </button>
-                        <!-- Floating Month Picker Overlay -->
-                        <div id="month-picker-ui" class="absolute left-0 lg:right-0 top-full mt-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl z-50 w-full md:w-[280px] hidden">
-                            <div class="p-3 border-b border-slate-700 flex justify-between items-center">
-                                <button onclick="app.changeYear(-1)" class="p-1 hover:text-gold"><i class="ph ph-caret-left"></i></button>
-                                <span id="picker-year" class="font-bold text-white">2026</span>
-                                <button onclick="app.changeYear(1)" class="p-1 hover:text-gold"><i class="ph ph-caret-right"></i></button>
-                            </div>
-                            <div class="month-grid">
-                                <div onclick="app.selectMonth(0)" class="month-item">Jan</div>
-                                <div onclick="app.selectMonth(1)" class="month-item">Feb</div>
-                                <div onclick="app.selectMonth(2)" class="month-item">Mar</div>
-                                <div onclick="app.selectMonth(3)" class="month-item">Apr</div>
-                                <div onclick="app.selectMonth(4)" class="month-item">Mei</div>
-                                <div onclick="app.selectMonth(5)" class="month-item">Jun</div>
-                                <div onclick="app.selectMonth(6)" class="month-item">Jul</div>
-                                <div onclick="app.selectMonth(7)" class="month-item">Agu</div>
-                                <div onclick="app.selectMonth(8)" class="month-item">Sep</div>
-                                <div onclick="app.selectMonth(9)" class="month-item">Okt</div>
-                                <div onclick="app.selectMonth(10)" class="month-item">Nov</div>
-                                <div onclick="app.selectMonth(11)" class="month-item">Des</div>
-                            </div>
-                        </div>
+            </div>
+
+            <div class="glass-card p-4 mb-6 cursor-pointer flex justify-between items-center hover:bg-gray-800 transition" onclick="toggleMonthPicker()">
+                <span class="text-lg font-semibold text-white" id="current-rekap-month">April 2026</span>
+                <i class="ph ph-caret-down text-gray-400"></i>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Saldo Aktif Card (Biru) -->
+                <div class="glass-card p-6 border-l-4 border-accent">
+                    <p class="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">Saldo Aktif</p>
+                    <h2 class="text-2xl font-bold text-white" id="rekap-saldo-aktif">Rp 0</h2>
+                </div>
+                <div class="glass-card p-6 border-l-4 border-red-500 relative">
+                    <p class="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider" id="label-pengeluaran-bulan">Pengeluaran</p>
+                    <h2 class="text-2xl font-bold text-white" id="rekap-pengeluaran">Rp 0</h2>
+                </div>
+                <div class="glass-card p-6 border-l-4 border-gold">
+                    <p class="text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">Surplus / Defisit</p>
+                    <div class="flex items-center gap-2 mt-1">
+                        <i id="rekap-surplus-icon" class="ph-bold text-2xl text-gray-400"></i>
+                        <h2 class="text-2xl font-bold text-gray-400" id="rekap-surplus">Rp 0</h2>
                     </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="glass-panel rounded-2xl p-5 border-l-4 border-l-gold">
-                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Saldo Aktif</p>
-                    <h3 class="text-xl font-bold text-white print-black" id="rekap-saldo">Rp 0</h3>
-                </div>
-                <div class="glass-panel rounded-2xl p-5 border-l-4 border-l-red-500">
-                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Pengeluaran</p>
-                    <h3 class="text-xl font-bold text-white print-black" id="rekap-pengeluaran">Rp 0</h3>
-                </div>
-                <div class="glass-panel rounded-2xl p-5 border-l-4 border-l-jatim">
-                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Surplus/Defisit</p>
-                    <h3 class="text-xl font-bold text-gold print-black" id="rekap-surplus">Rp 0</h3>
-                </div>
-            </div>
-
-            <div class="glass-panel rounded-2xl overflow-hidden print:border">
-                <div class="p-5 border-b border-slate-800">
-                    <h4 class="text-xs font-bold text-white print-black" id="rekap-table-title">Rincian Transaksi</h4>
+            <div class="glass-card overflow-hidden">
+                <div class="p-4 border-b border-gray-700">
+                    <h3 class="font-bold text-sm text-gray-300" id="label-transaksi-bulan">Transaksi April 2026</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs min-w-[650px]">
-                        <thead class="bg-slate-800/50 text-slate-500 uppercase text-[9px] font-bold print:border-b">
+                    <table class="w-full text-left text-sm text-gray-400">
+                        <thead class="bg-[#1f2937] text-xs uppercase">
                             <tr>
-                                <th class="px-5 py-3">Tanggal</th>
-                                <th class="px-5 py-3">Kategori</th>
-                                <th class="px-5 py-3">Detail</th>
-                                <th class="px-5 py-3 text-right">Nominal</th>
-                                <th class="px-5 py-3 text-center no-print">Aksi</th>
+                                <th class="px-6 py-4">Tanggal</th>
+                                <th class="px-6 py-4">Kategori</th>
+                                <th class="px-6 py-4">Detail</th>
+                                <th class="px-6 py-4 text-right">Nominal</th>
+                                <th class="px-6 py-4 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="table-rekap" class="divide-y divide-slate-800 print:divide-slate-200 print-black"></tbody>
+                        <tbody class="divide-y divide-gray-700" id="table-rekap"></tbody>
                     </table>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
 
-    <!-- Modal Settings (Responsive) -->
-    <div id="modal-settings" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] border border-slate-700 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl">
-            <div class="p-5 flex justify-between items-center border-b border-slate-800">
-                <h3 class="text-md font-bold text-white flex items-center"><i class="ph ph-gear-six text-gold mr-3"></i> Pengaturan</h3>
-                <button onclick="app.closeSettings()" class="text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Web App URL</label>
-                    <input type="url" id="input-sheet-url" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white text-xs focus:ring-1 focus:ring-gold outline-none">
-                </div>
-                <button onclick="app.saveSettings()" class="w-full bg-gold hover:bg-yellow-500 text-black font-bold py-3.5 rounded-xl text-sm transition-all">Simpan</button>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm hidden items-center justify-center z-[100]">
+        <div class="glass-card p-8 w-full max-w-md border border-gray-600">
+            <h3 class="text-xl font-bold text-white mb-2">Integrasi Spreadsheet</h3>
+            <p class="text-sm text-gray-400 mb-6">Masukkan URL Google Apps Script Web App untuk sinkronisasi data.</p>
+            <label class="block text-xs text-gray-400 font-semibold mb-2 uppercase">Web App URL</label>
+            <input type="text" id="sheetUrlInput" class="input-dark mb-6" placeholder="https://script.google.com/macros/s/.../exec">
+            <div class="flex gap-4">
+                <button onclick="saveSettings()" class="btn-primary flex-1">Simpan</button>
+                <button onclick="closeSettings()" class="btn-secondary">Tutup</button>
             </div>
         </div>
     </div>
 
+    <!-- Month Picker Modal -->
+    <div id="monthPickerModal" class="fixed inset-0 z-40 items-center justify-center hidden" onclick="if(event.target === this) toggleMonthPicker()">
+        <div class="glass-card p-4 w-[300px] border border-gray-600 absolute top-40 mx-auto shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">
+                <button onclick="changeYear(-1)" class="text-gray-400 hover:text-white p-1"><i class="ph ph-caret-left"></i></button>
+                <span class="font-bold text-white text-lg" id="mp-year">2026</span>
+                <button onclick="changeYear(1)" class="text-gray-400 hover:text-white p-1"><i class="ph ph-caret-right"></i></button>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-center text-sm" id="mp-months"></div>
+        </div>
+    </div>
+
     <script>
-        const app = {
-            data: [],
-            sheetUrl: localStorage.getItem('wealthSheetUrl') || '',
-            activeTab: 'dashboard',
-            selectedYear: 2026,
-            selectedMonth: 3, 
-            charts: {},
-            isSidebarOpen: false,
-            
-            categories: {
-                'Salary': { type: 'in', parent: 'Bank Jatim', color: '#c41b38' },
-                'Bunga': { type: 'in', parent: 'Bank Jatim', color: '#c41b38' },
-                'Tax': { type: 'out', parent: 'Bank Jatim', color: '#c41b38' },
-                'Cash': { type: 'transfer', parent: 'Cash', color: '#a9bf7f', source: 'Bank Jatim' },
-                'GoPay': { type: 'transfer', parent: 'GoPay', color: '#00ABD6', source: 'Bank Jatim' },
-                'SeaBank': { type: 'transfer', parent: 'SeaBank', color: '#db773d', source: 'Bank Jatim' },
-                'Extra': { type: 'in', parent: 'Cash', color: '#a9bf7f' },
-                'Receivable': { type: 'in', parent: 'Cash', color: '#a9bf7f' },
-                'B&F': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'BBM': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'Baby Gear': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'StayCation': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'Transport': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'Services': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'Medicine': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'MotorTax': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'Edible': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'Hidden Cost': { type: 'out', parent: 'Cash', color: '#a9bf7f' },
-                'Allowance': { type: 'in', parent: 'GoPay', color: '#00ABD6' },
-                'Interest': { type: 'in', parent: 'GoPay', color: '#00ABD6' },
-                'PLN': { type: 'out', parent: 'GoPay', color: '#00ABD6' },
-                'BPJS': { type: 'out', parent: 'GoPay', color: '#00ABD6' },
-                'PDAM': { type: 'out', parent: 'GoPay', color: '#00ABD6' },
-                'Internet': { type: 'out', parent: 'GoPay', color: '#00ABD6' },
-                'OnLine': { type: 'out', parent: 'GoPay', color: '#00ABD6' },
-                'Plausible': { type: 'out', parent: 'GoPay', color: '#00ABD6' },
-                'Return': { type: 'in', parent: 'SeaBank', color: '#db773d' },
-                'ShopCart': { type: 'out', parent: 'SeaBank', color: '#db773d' },
-            },
+        const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        
+        const ACCOUNTS = { JATIM: 'bankjatim', CASH: 'cash', GOPAY: 'gopay', SEABANK: 'seabank' };
+        const COLORS = { bankjatim: '#D50C13', cash: '#85BB65', gopay: '#26bad1', seabank: '#f97316', bgDark: '#1f2937' };
 
-            init() {
-                const now = new Date();
-                this.selectedYear = now.getFullYear();
-                this.selectedMonth = now.getMonth();
-                const stored = localStorage.getItem('wealthData_v2');
-                this.data = stored ? JSON.parse(stored) : [];
-                this.switchTab('dashboard');
-                this.renderMonthPicker();
-                if(this.sheetUrl) this.pullData(true);
-                
-                // Close sidebar on small screens initially
-                if(window.innerWidth < 1024) this.isSidebarOpen = false;
-            },
-
-            toggleSidebar() {
-                this.isSidebarOpen = !this.isSidebarOpen;
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebar-overlay');
-                const menuIcon = document.getElementById('menu-icon');
-
-                if (this.isSidebarOpen) {
-                    sidebar.classList.remove('closed');
-                    sidebar.classList.add('open');
-                    overlay.classList.remove('hidden');
-                    menuIcon.className = "ph ph-x";
-                } else {
-                    sidebar.classList.remove('open');
-                    sidebar.classList.add('closed');
-                    overlay.classList.add('hidden');
-                    menuIcon.className = "ph ph-list";
-                }
-            },
-
-            formatRp(n) {
-                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
-            },
-
-            formatAccounting(el) {
-                let val = el.value.replace(/\D/g, '');
-                if (val === '') { el.value = ''; return; }
-                el.value = new Intl.NumberFormat('id-ID').format(val);
-            },
-
-            showToast(msg, isError = false) {
-                const t = document.getElementById('toast');
-                const tc = document.getElementById('toast-content');
-                tc.innerText = msg;
-                tc.className = isError ? "bg-red-500 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center" : "bg-slate-800 border border-slate-700 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center";
-                t.classList.remove('translate-x-full');
-                setTimeout(() => t.classList.add('translate-x-full'), 3000);
-            },
-
-            switchTab(tab) {
-                this.activeTab = tab;
-                ['dashboard', 'catat', 'rekap'].forEach(v => {
-                    document.getElementById(`view-${v}`).classList.add('hidden');
-                    document.getElementById(`nav-${v}`).classList.remove('bg-slate-800', 'text-gold', 'font-bold');
-                });
-                document.getElementById(`view-${tab}`).classList.remove('hidden');
-                document.getElementById(`nav-${tab}`).classList.add('bg-slate-800', 'text-gold', 'font-bold');
-                
-                // Close sidebar after clicking menu on mobile
-                if(window.innerWidth < 1024 && this.isSidebarOpen) this.toggleSidebar();
-
-                if (tab === 'dashboard') this.renderDashboard();
-                if (tab === 'catat') this.renderCatat();
-                if (tab === 'rekap') this.renderRekap();
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            },
-
-            calculate() {
-                let balances = { 'Bank Jatim': 0, 'Cash': 0, 'GoPay': 0, 'SeaBank': 0, inBankJatim: 0, outCash: 0, outGoPay: 0, outSeaBank: 0 };
-                let categoriesTotal = { 'Bank Jatim': {}, 'Cash': {}, 'GoPay': {}, 'SeaBank': {} };
-                this.data.forEach(trx => {
-                    const info = this.categories[trx.kat];
-                    if(!info) return;
-                    const val = parseInt(trx.nominal) || 0;
-                    if (info.parent === 'Bank Jatim') {
-                        if (info.type === 'in') { balances['Bank Jatim'] += val; balances.inBankJatim += val; }
-                        else if (info.type === 'out') balances['Bank Jatim'] -= val;
-                    } 
-                    else if (info.type === 'transfer') {
-                        balances['Bank Jatim'] -= val;
-                        balances[info.parent] += val;
-                        categoriesTotal['Bank Jatim'][trx.kat] = (categoriesTotal['Bank Jatim'][trx.kat] || 0) + val;
-                    }
-                    else if (info.parent === 'Cash') {
-                        if (info.type === 'in') balances['Cash'] += val;
-                        else if (info.type === 'out') { balances['Cash'] -= val; balances.outCash += val; }
-                    }
-                    else if (info.parent === 'GoPay') {
-                        if (info.type === 'in') balances['GoPay'] += val;
-                        else if (info.type === 'out') { balances['GoPay'] -= val; balances.outGoPay += val; }
-                    }
-                    else if (info.parent === 'SeaBank') {
-                        if (info.type === 'in') balances['SeaBank'] += val;
-                        else if (info.type === 'out') { balances['SeaBank'] -= val; balances.outSeaBank += val; }
-                    }
-                    if (info.type === 'out') { categoriesTotal[info.parent][trx.kat] = (categoriesTotal[info.parent][trx.kat] || 0) + val; }
-                });
-                return { balances, categoriesTotal };
-            },
-
-            renderDashboard() {
-                const { balances, categoriesTotal } = this.calculate();
-                document.getElementById('dash-jatim').innerText = this.formatRp(balances['Bank Jatim']);
-                document.getElementById('dash-cash').innerText = this.formatRp(balances['Cash']);
-                document.getElementById('dash-gopay').innerText = this.formatRp(balances['GoPay']);
-                document.getElementById('dash-seabank').innerText = this.formatRp(balances['SeaBank']);
-                document.getElementById('dash-total-in').innerText = this.formatRp(balances.inBankJatim);
-                const totalSaldo = balances['Bank Jatim'] + balances['Cash'] + balances['GoPay'] + balances['SeaBank'];
-                document.getElementById('dash-total-saldo').innerText = this.formatRp(totalSaldo);
-                this.renderCharts(balances, categoriesTotal);
-
-                let rHtml = '';
-                ['Bank Jatim', 'Cash', 'GoPay', 'SeaBank'].forEach(parent => {
-                    const items = categoriesTotal[parent];
-                    const keys = Object.keys(items);
-                    let color = parent === 'Bank Jatim' ? 'text-jatim' : (parent === 'Cash' ? 'text-cash' : (parent === 'GoPay' ? 'text-gopay' : 'text-seabank'));
-                    let rows = keys.map(k => `<div class="flex justify-between text-[10px] mb-1.5"><span class="text-slate-500">${k}</span><span class="text-white">${this.formatRp(items[k])}</span></div>`).join('');
-                    rHtml += `<div><h5 class="text-[10px] font-bold ${color} mb-2 uppercase">${parent}</h5>${rows || '<p class="text-[9px] italic text-slate-600">Nihil</p>'}</div>`;
-                });
-                document.getElementById('rincian-kategori-list').innerHTML = rHtml;
-
-                const recent = [...this.data].sort((a,b) => this.parseDate(b.tanggal) - this.parseDate(a.tanggal)).slice(0, 5);
-                document.getElementById('table-recent').innerHTML = recent.map(trx => this.generateRow(trx)).join('');
-            },
-
-            renderCharts(b, catTotal) {
-                if(this.charts.bar) this.charts.bar.destroy();
-                if(this.charts.p1) this.charts.p1.destroy();
-                if(this.charts.p2) this.charts.p2.destroy();
-                const common = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
-                
-                this.charts.bar = new Chart(document.getElementById('chart-pengeluaran'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['Cash', 'GoPay', 'SeaBank'],
-                        datasets: [{ data: [b.outCash, b.outGoPay, b.outSeaBank], backgroundColor: ['#a9bf7f', '#00ABD6', '#db773d'], borderRadius: 6 }]
-                    },
-                    options: { ...common, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' }, ticks: { callback: v => 'Rp '+v/1000+'k', font: { size: 9 } } } } }
-                });
-
-                const tCash = catTotal['Bank Jatim']['Cash'] || 0;
-                const tGopay = catTotal['Bank Jatim']['GoPay'] || 0;
-                const tSea = catTotal['Bank Jatim']['SeaBank'] || 0;
-
-                this.charts.p1 = new Chart(document.getElementById('chart-pusat'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Sisa', 'Cash', 'GoPay', 'SeaBank'],
-                        datasets: [{ data: [b['Bank Jatim'], tCash, tGopay, tSea], backgroundColor: ['#c41b38', '#a9bf7f', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
-                    },
-                    options: common
-                });
-
-                this.charts.p2 = new Chart(document.getElementById('chart-total'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['In', 'Out Cash', 'Out GoPay', 'Out SeaBank'],
-                        datasets: [{ data: [b.inBankJatim, b.outCash, b.outGoPay, b.outSeaBank], backgroundColor: ['#c41b38', '#a9bf7f', '#00ABD6', '#db773d'], borderWidth: 0, cutout: '75%' }]
-                    },
-                    options: common
-                });
-            },
-
-            renderCatat() {
-                const hist = [...this.data].sort((a,b) => this.parseDate(b.tanggal) - this.parseDate(a.tanggal));
-                document.getElementById('list-histori').innerHTML = hist.map(trx => {
-                    const info = this.categories[trx.kat];
-                    const isMin = info.type === 'out' || info.type === 'transfer' || trx.kat === 'Tax';
-                    return `
-                    <div class="flex justify-between items-center bg-slate-800/20 p-4 rounded-xl border border-slate-800/50">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[9px] text-slate-500 font-bold">${trx.tanggal}</span>
-                                <span class="text-[9px] font-bold uppercase" style="color: ${info.color}">${trx.kat}</span>
-                            </div>
-                            <p class="text-xs text-white font-medium truncate max-w-[150px] md:max-w-none">${trx.detail}</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <p class="text-xs font-semibold ${isMin ? 'text-slate-300' : 'text-red-500'}">${isMin ? '-' : '+'} ${this.formatRp(trx.nominal)}</p>
-                            <button onclick="app.editTrx('${trx.id}')" class="text-slate-600 hover:text-gold"><i class="ph ph-pencil-simple text-lg"></i></button>
-                        </div>
-                    </div>`;
-                }).join('') || '<p class="text-center text-slate-600 py-10">Belum ada transaksi.</p>';
-            },
-
-            renderRekap() {
-                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                const monthName = months[this.selectedMonth];
-                const monthKey = `${monthName} ${this.selectedYear}`;
-                document.getElementById('display-rekap-month').innerText = `${monthName} ${this.selectedYear}`;
-                document.getElementById('rekap-table-title').innerText = `Transaksi ${monthKey}`;
-                const filtered = this.data.filter(trx => trx.tanggal.includes(monthKey));
-                let totalOutMonth = 0;
-                filtered.forEach(t => { if(this.categories[t.kat]?.type === 'out') totalOutMonth += parseInt(t.nominal); });
-                const { balances } = this.calculate();
-                const currentSaldo = balances['Bank Jatim'] + balances['Cash'] + balances['GoPay'] + balances['SeaBank'];
-                const surplus = currentSaldo - totalOutMonth;
-                document.getElementById('rekap-saldo').innerText = this.formatRp(currentSaldo);
-                document.getElementById('rekap-pengeluaran').innerText = this.formatRp(totalOutMonth);
-                document.getElementById('rekap-surplus').innerText = this.formatRp(surplus);
-                document.getElementById('table-rekap').innerHTML = filtered.sort((a,b) => this.parseDate(b.tanggal) - this.parseDate(a.tanggal)).map(trx => this.generateRow(trx)).join('');
-            },
-
-            parseDate(str) {
-                if(!str) return new Date();
-                if(str.includes('T') || str.includes('Z')) return new Date(str);
-                const parts = str.split(' ');
-                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                const mIdx = months.indexOf(parts[1]);
-                return new Date(parts[2], mIdx, parseInt(parts[0]));
-            },
-
-            formatDisplayDate(inputDate) {
-                const d = new Date(inputDate);
-                const day = String(d.getDate()).padStart(2, '0');
-                const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-                return `${day} ${months[d.getMonth()]} ${d.getFullYear()}`;
-            },
-
-            async handleFormSubmit(e) {
-                e.preventDefault();
-                const id = document.getElementById('input-id').value;
-                const tanggalRaw = document.getElementById('input-tanggal').value;
-                const kat = document.getElementById('input-kategori').value;
-                const nominal = parseInt(document.getElementById('input-nominal').value.replace(/\D/g, '')) || 0;
-                const detail = document.getElementById('input-detail').value;
-                const tanggal = this.formatDisplayDate(tanggalRaw);
-                
-                let newData = [...this.data];
-                if(id) {
-                    const idx = newData.findIndex(x => x.id === id);
-                    if(idx > -1) newData[idx] = { id, tanggal, kat, nominal, detail };
-                } else {
-                    newData.push({ id: Math.random().toString(36).substr(2, 9), tanggal, kat, nominal, detail });
-                }
-
-                if(this.sheetUrl) {
-                    this.showToast("Sinkronisasi...");
-                    await fetch(this.sheetUrl, { method: 'POST', body: JSON.stringify({ action: 'sync', data: newData }) });
-                }
-
-                this.data = newData;
-                localStorage.setItem('wealthData_v2', JSON.stringify(this.data));
-                this.resetForm();
-                this.switchTab(this.activeTab);
-                this.showToast("Tersimpan!");
-            },
-
-            editTrx(id) {
-                const trx = this.data.find(x => x.id === id);
-                if(!trx) return;
-                const d = this.parseDate(trx.tanggal);
-                document.getElementById('input-id').value = trx.id;
-                document.getElementById('input-tanggal').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                document.getElementById('input-kategori').value = trx.kat;
-                document.getElementById('input-nominal').value = new Intl.NumberFormat('id-ID').format(trx.nominal);
-                document.getElementById('input-detail').value = trx.detail;
-                document.getElementById('btn-submit').innerText = "Update";
-                this.switchTab('catat');
-            },
-
-            resetForm() {
-                document.getElementById('input-id').value = '';
-                document.getElementById('form-catat').reset();
-                document.getElementById('input-tanggal').value = new Date().toISOString().split('T')[0];
-                document.getElementById('btn-submit').innerText = "Simpan";
-            },
-
-            generateRow(trx) {
-                const info = this.categories[trx.kat];
-                const isMin = info.type === 'out' || info.type === 'transfer' || trx.kat === 'Tax';
-                return `
-                <tr class="hover:bg-slate-800/30">
-                    <td class="px-5 py-4 text-slate-400 font-medium whitespace-nowrap">${trx.tanggal}</td>
-                    <td class="px-5 py-4 uppercase font-bold whitespace-nowrap" style="color: ${info.color}">${trx.kat}</td>
-                    <td class="px-5 py-4 text-white">${trx.detail}</td>
-                    <td class="px-5 py-4 text-right font-semibold whitespace-nowrap ${isMin ? 'text-slate-300' : 'text-red-500'}">${isMin ? '-' : '+'} ${this.formatRp(trx.nominal)}</td>
-                    <td class="px-5 py-4 text-center no-print">
-                        <button onclick="app.editTrx('${trx.id}')" class="text-slate-600 hover:text-gold"><i class="ph ph-pencil-simple text-lg"></i></button>
-                    </td>
-                </tr>`;
-            },
-
-            async pullData(silent = false) {
-                if(!this.sheetUrl) return;
-                const icon = document.getElementById('sync-icon');
-                if(icon) icon.classList.add('ph-spin');
-                try {
-                    const res = await fetch(this.sheetUrl);
-                    this.data = await res.json();
-                    localStorage.setItem('wealthData_v2', JSON.stringify(this.data));
-                    this.switchTab(this.activeTab);
-                    if(!silent) this.showToast("Sinkron!");
-                } catch (err) {
-                    if(!silent) this.showToast("Gagal Sync", true);
-                } finally {
-                    if(icon) icon.classList.remove('ph-spin');
-                }
-            },
-
-            toggleMonthPicker() { document.getElementById('month-picker-ui').classList.toggle('hidden'); },
-            changeYear(v) { this.selectedYear += v; this.renderMonthPicker(); },
-            selectMonth(m) { this.selectedMonth = m; document.getElementById('month-picker-ui').classList.add('hidden'); this.renderRekap(); },
-            renderMonthPicker() {
-                document.getElementById('picker-year').innerText = this.selectedYear;
-                document.querySelectorAll('.month-item').forEach((item, idx) => {
-                    item.className = idx === this.selectedMonth ? "month-item month-active" : "month-item";
-                });
-            },
-            openSettings() { document.getElementById('input-sheet-url').value = this.sheetUrl; document.getElementById('modal-settings').classList.remove('hidden'); },
-            closeSettings() { document.getElementById('modal-settings').classList.add('hidden'); },
-            saveSettings() { 
-                this.sheetUrl = document.getElementById('input-sheet-url').value.trim(); 
-                localStorage.setItem('wealthSheetUrl', this.sheetUrl); 
-                this.closeSettings(); 
-                if(this.sheetUrl) this.pullData();
-            }
+        const CATEGORY_MAP = {
+            'Salary': { acc: ACCOUNTS.JATIM, type: 'in', color: 'text-bankjatim' },
+            'Bunga': { acc: ACCOUNTS.JATIM, type: 'in', color: 'text-bankjatim' },
+            'Cash': { acc: ACCOUNTS.JATIM, type: 'out', dest: ACCOUNTS.CASH, color: 'text-cash' },
+            'GoPay': { acc: ACCOUNTS.JATIM, type: 'out', dest: ACCOUNTS.GOPAY, color: 'text-gopay' },
+            'SeaBank': { acc: ACCOUNTS.JATIM, type: 'out', dest: ACCOUNTS.SEABANK, color: 'text-seabank' },
+            'Tax': { acc: ACCOUNTS.JATIM, type: 'out', color: 'text-gray-400' },
+            'Extra': { acc: ACCOUNTS.CASH, type: 'in', color: 'text-cash' },
+            'Receivable': { acc: ACCOUNTS.CASH, type: 'in', color: 'text-cash' },
+            'B&F': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'BBM': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'Baby Gear': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'StayCation': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'Transport': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'Services': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'Medicine': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'MotorTax': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'Edible': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'Hidden Cost': { acc: ACCOUNTS.CASH, type: 'out', color: 'text-cash' },
+            'Allowance': { acc: ACCOUNTS.GOPAY, type: 'in', color: 'text-gopay' },
+            'Interest': { acc: ACCOUNTS.GOPAY, type: 'in', color: 'text-gopay' },
+            'PLN': { acc: ACCOUNTS.GOPAY, type: 'out', color: 'text-gopay' },
+            'BPJS': { acc: ACCOUNTS.GOPAY, type: 'out', color: 'text-gopay' },
+            'PDAM': { acc: ACCOUNTS.GOPAY, type: 'out', color: 'text-gopay' },
+            'Internet': { acc: ACCOUNTS.GOPAY, type: 'out', color: 'text-gopay' },
+            'OnLine': { acc: ACCOUNTS.GOPAY, type: 'out', color: 'text-gopay' },
+            'Plausible': { acc: ACCOUNTS.GOPAY, type: 'out', color: 'text-gopay' },
+            'Return': { acc: ACCOUNTS.SEABANK, type: 'in', color: 'text-seabank' },
+            'ShopCart': { acc: ACCOUNTS.SEABANK, type: 'out', color: 'text-seabank' }
         };
 
-        window.onload = () => app.init();
+        let transactions = JSON.parse(localStorage.getItem('fintrack_data')) || [];
+        let sheetUrl = localStorage.getItem('fintrack_sheet_url') || '';
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let chartBar, chartDoughnutPusat, chartDoughnutTotal;
+
+        window.onload = () => {
+            document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0];
+            if(transactions.length === 0) seedSampleData();
+            initCharts();
+            updateAllViews();
+            renderMonthPicker();
+        };
+
+        const formatRp = (num) => 'Rp ' + num.toLocaleString('id-ID');
+        const parseRp = (str) => parseInt(str.replace(/[^0-9]/g, '')) || 0;
+
+        // FORMAT TANGGAL UNTUK SPREADSHEET: April 10, 2026
+        const formatDateForSpreadsheet = (isoDate) => {
+            const d = new Date(isoDate);
+            return `${MONTHS_EN[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+        };
+
+        // PARSE TANGGAL DARI SPREADSHEET: April 10, 2026 -> ISO
+        const parseDateFromSpreadsheet = (sheetDate) => {
+            try {
+                const parts = sheetDate.replace(',', '').split(' ');
+                const m = MONTHS_EN.indexOf(parts[0]);
+                const d = parts[1].padStart(2, '0');
+                const y = parts[2];
+                return `${y}-${String(m + 1).padStart(2, '0')}-${d}`;
+            } catch(e) { return new Date().toISOString().split('T')[0]; }
+        };
+
+        const formatDateForDisplay = (dateString) => {
+            const date = new Date(dateString);
+            return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+        };
+
+        function calculateBalances() {
+            let bals = { bankjatim: 0, cash: 0, gopay: 0, seabank: 0 };
+            let categoriesOut = { bankjatim: {}, cash: {}, gopay: {}, seabank: {} };
+            let totals = { pusatIn: 0, cashOut: 0, gopayOut: 0, seabankOut: 0, totalAllIn: 0 };
+
+            transactions.forEach(t => {
+                const catInfo = CATEGORY_MAP[t.kategori];
+                if (!catInfo) return;
+                const amount = parseInt(t.nominal);
+                if (catInfo.type === 'in') {
+                    bals[catInfo.acc] += amount;
+                    if(catInfo.acc === ACCOUNTS.JATIM) totals.pusatIn += amount;
+                    totals.totalAllIn += amount;
+                } else if (catInfo.type === 'out') {
+                    bals[catInfo.acc] -= amount;
+                    if(!categoriesOut[catInfo.acc][t.kategori]) categoriesOut[catInfo.acc][t.kategori] = 0;
+                    categoriesOut[catInfo.acc][t.kategori] += amount;
+                    if (catInfo.dest) bals[catInfo.dest] += amount;
+                    else {
+                        if(catInfo.acc === ACCOUNTS.CASH) totals.cashOut += amount;
+                        if(catInfo.acc === ACCOUNTS.GOPAY) totals.gopayOut += amount;
+                        if(catInfo.acc === ACCOUNTS.SEABANK) totals.seabankOut += amount;
+                    }
+                }
+            });
+            return { bals, categoriesOut, totals };
+        }
+
+        function updateAllViews() {
+            const data = calculateBalances();
+            document.getElementById('bal-jatim').innerText = formatRp(data.bals.bankjatim);
+            document.getElementById('bal-cash').innerText = formatRp(data.bals.cash);
+            document.getElementById('bal-gopay').innerText = formatRp(data.bals.gopay);
+            document.getElementById('bal-seabank').innerText = formatRp(data.bals.seabank);
+            document.getElementById('total-in-pusat').innerText = formatRp(data.totals.pusatIn);
+            const totalSaldo = data.bals.bankjatim + data.bals.cash + data.bals.gopay + data.bals.seabank;
+            document.getElementById('total-saldo-aktif').innerText = formatRp(totalSaldo);
+            updateCharts(data);
+            renderDashboardCategories(data.categoriesOut);
+            renderTerakhirTable();
+            renderHistori();
+            renderRekapData();
+        }
+
+        function renderDashboardCategories(cats) {
+            const container = document.getElementById('rincian-kategori-container');
+            container.innerHTML = '';
+            const renderGroup = (title, accName, icon, dataObj) => {
+                let colorClass = accName === 'bankjatim' ? 'text-bankjatim' : `text-${accName}`;
+                let html = `<div><h4 class="text-xs font-bold mb-3 uppercase flex items-center gap-2 ${colorClass}"><i class="ph-fill ${icon}"></i> ${title}</h4><ul class="space-y-2">`;
+                let hasData = false;
+                for (let cat in dataObj) {
+                    if (dataObj[cat] > 0) {
+                        hasData = true;
+                        html += `<li class="flex justify-between items-center text-sm cat-bg-${accName} p-2 rounded"><span class="text-gray-300">${cat}</span><span class="font-semibold text-white">${formatRp(dataObj[cat])}</span></li>`;
+                    }
+                }
+                if(!hasData) html += `<li class="text-xs text-gray-600 italic">Nihil</li>`;
+                html += `</ul></div>`;
+                return html;
+            };
+            container.innerHTML += renderGroup('BANK JATIM', 'bankjatim', 'ph-bank', cats.bankjatim);
+            container.innerHTML += renderGroup('CASH', 'cash', 'ph-wallet', cats.cash);
+            container.innerHTML += renderGroup('GOPAY', 'gopay', 'ph-device-mobile', cats.gopay);
+            container.innerHTML += renderGroup('SEABANK', 'seabank', 'ph-piggy-bank', cats.seabank);
+        }
+
+        function generateTableRow(t) {
+            const catInfo = CATEGORY_MAP[t.kategori] || { type: 'out', color: 'text-gray-400' };
+            const isIncome = catInfo.type === 'in';
+            const nominalColor = isIncome ? 'text-green-500' : 'text-expense'; // Nominal pengeluaran #fcfcfd
+            return `
+                <tr class="hover:bg-gray-800 transition group">
+                    <td class="px-6 py-4 whitespace-nowrap">${t.tanggalDisplay}</td>
+                    <td class="px-6 py-4 font-bold ${catInfo.color} text-xs uppercase tracking-wider">${t.kategori}</td>
+                    <td class="px-6 py-4 text-gray-300 w-1/2">${t.detail}</td>
+                    <td class="px-6 py-4 text-right font-bold whitespace-nowrap ${nominalColor}">${isIncome ? '+' : '-'} ${formatRp(t.nominal)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="editTransaction('${t.id}')" class="text-gray-500 hover:text-white transition opacity-0 group-hover:opacity-100"><i class="ph ph-pencil-simple text-lg"></i></button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function renderTerakhirTable() { document.getElementById('table-terakhir').innerHTML = transactions.slice(0, 5).map(t => generateTableRow(t)).join(''); }
+
+        function renderHistori() {
+            const container = document.getElementById('histori-container');
+            if(transactions.length === 0) { container.innerHTML = '<p class="text-gray-500 text-sm text-center mt-10">Belum ada transaksi.</p>'; return; }
+            container.innerHTML = transactions.slice(0, 10).map(t => {
+                const catInfo = CATEGORY_MAP[t.kategori] || { type: 'in', color: 'text-gray-400' };
+                const isIncome = catInfo.type === 'in';
+                const nominalColor = isIncome ? 'text-green-500' : 'text-expense';
+                return `<div class="p-3 bg-gray-800 rounded-lg border border-gray-700 flex justify-between items-center group">
+                    <div><div class="flex items-center gap-2 mb-1"><span class="text-[10px] text-gray-500">${t.tanggalDisplay}</span><span class="text-[10px] font-bold ${catInfo.color} uppercase">${t.kategori}</span></div><p class="text-sm text-white truncate max-w-[200px]">${t.detail}</p></div>
+                    <div class="flex items-center gap-3"><span class="font-bold text-sm whitespace-nowrap ${nominalColor}">${isIncome ? '+' : '-'} ${formatRp(t.nominal)}</span><button onclick="editTransaction('${t.id}')" class="text-gray-500 hover:text-white"><i class="ph ph-pencil-simple"></i></button></div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderRekapData() {
+            const filtered = transactions.filter(t => {
+                const d = new Date(t.tanggalIso);
+                return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            });
+            const allData = calculateBalances();
+            const totalSaldo = allData.bals.bankjatim + allData.bals.cash + allData.bals.gopay + allData.bals.seabank;
+            let outBulanIni = 0;
+            filtered.forEach(t => {
+                const catInfo = CATEGORY_MAP[t.kategori];
+                if(catInfo && catInfo.type === 'out' && !catInfo.dest) outBulanIni += parseInt(t.nominal);
+            });
+            const surplusDefisit = totalSaldo - outBulanIni;
+            document.getElementById('current-rekap-month').innerText = `${MONTHS[currentMonth]} ${currentYear}`;
+            document.getElementById('label-pengeluaran-bulan').innerText = `Pengeluaran ${MONTHS[currentMonth]} ${currentYear}`;
+            document.getElementById('label-transaksi-bulan').innerText = `Transaksi ${MONTHS[currentMonth]} ${currentYear}`;
+            document.getElementById('rekap-saldo-aktif').innerText = formatRp(totalSaldo);
+            document.getElementById('rekap-pengeluaran').innerText = formatRp(outBulanIni);
+            const elSurplus = document.getElementById('rekap-surplus');
+            const elSurplusIcon = document.getElementById('rekap-surplus-icon');
+            elSurplus.innerText = formatRp(Math.abs(surplusDefisit));
+            if(surplusDefisit < 0) { elSurplus.className = 'text-2xl font-bold text-red-500'; elSurplus.innerText = '- ' + elSurplus.innerText; elSurplusIcon.className = 'ph-bold ph-trend-down text-red-500 text-2xl'; }
+            else { elSurplus.className = 'text-2xl font-bold text-green-500'; elSurplus.innerText = '+ ' + elSurplus.innerText; elSurplusIcon.className = 'ph-bold ph-trend-up text-green-500 text-2xl'; }
+            const tbody = document.getElementById('table-rekap');
+            tbody.innerHTML = filtered.length === 0 ? `<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500 italic">Nihil.</td></tr>` : filtered.map(t => generateTableRow(t)).join('');
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const rawTgl = document.getElementById('inputTanggal').value;
+            const kat = document.getElementById('inputKategori').value;
+            const nomStr = document.getElementById('inputNominal').value;
+            const det = document.getElementById('inputDetail').value;
+            const nominal = parseRp(nomStr);
+            const id = document.getElementById('editId').value || Date.now().toString();
+            const newTx = { id, tanggalIso: rawTgl, tanggalDisplay: formatDateForDisplay(rawTgl), kategori: kat, nominal, detail: det, timestamp: Date.now() };
+            if(document.getElementById('editId').value) transactions = transactions.filter(t => t.id !== id);
+            transactions.push(newTx);
+            transactions.sort((a, b) => new Date(b.tanggalIso) - new Date(a.tanggalIso));
+            saveData();
+            resetForm();
+            Swal.fire({ icon: 'success', title: 'Tersimpan', background: '#1f2937', color: '#fff', showConfirmButton: false, timer: 1000 });
+            updateAllViews();
+        }
+
+        function saveData() {
+            localStorage.setItem('fintrack_data', JSON.stringify(transactions));
+            syncDataPush(); // Auto push format ke sheet
+        }
+
+        async function syncData() {
+            const icon = document.getElementById('syncIcon');
+            icon.classList.add('animate-spin');
+            if(!sheetUrl) { icon.classList.remove('animate-spin'); Swal.fire('Info', 'URL Spreadsheet belum diatur.', 'info'); return; }
+            try {
+                // SINKRONISASI = AMBIL DATA DARI SPREADSHEET
+                const response = await fetch(sheetUrl);
+                const data = await response.json();
+                if(data && Array.isArray(data)) {
+                    transactions = data.map(row => ({
+                        id: Math.random().toString(36).substr(2, 9),
+                        tanggalIso: parseDateFromSpreadsheet(row.tanggal),
+                        tanggalDisplay: formatDateForDisplay(parseDateFromSpreadsheet(row.tanggal)),
+                        kategori: row.kategori,
+                        nominal: parseRp(row.nominal),
+                        detail: row.detail || '',
+                        timestamp: Date.now()
+                    }));
+                    transactions.sort((a, b) => new Date(b.tanggalIso) - new Date(a.tanggalIso));
+                    localStorage.setItem('fintrack_data', JSON.stringify(transactions));
+                    updateAllViews();
+                }
+                icon.classList.remove('animate-spin');
+                Swal.fire({ icon: 'success', title: 'Data Disinkronkan', background: '#1f2937', color: '#fff', showConfirmButton: false, timer: 1500 });
+            } catch (error) { icon.classList.remove('animate-spin'); Swal.fire('Error', 'Gagal sinkronisasi data.', 'error'); }
+        }
+
+        async function syncDataPush() {
+            if(!sheetUrl) return;
+            // Kirim data dengan format yang diminta
+            const formatted = transactions.map(t => ({
+                tanggal: formatDateForSpreadsheet(t.tanggalIso),
+                kategori: t.kategori,
+                nominal: formatRp(t.nominal),
+                detail: t.detail
+            }));
+            fetch(sheetUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formatted) });
+        }
+
+        function saveSettings() {
+            sheetUrl = document.getElementById('sheetUrlInput').value;
+            localStorage.setItem('fintrack_sheet_url', sheetUrl);
+            closeSettings();
+            Swal.fire({ icon: 'success', title: 'URL Tersimpan', background: '#1f2937', color: '#fff', showConfirmButton: false, timer: 1000 });
+            // OTOMATIS CEK SINKRONISASI SETELAH SAVE
+            setTimeout(syncData, 500);
+        }
+
+        // --- UI & CHARTS UTILS ---
+        function switchTab(tabId) {
+            ['dashboard', 'catat', 'rekap'].forEach(id => document.getElementById(id).classList.toggle('hidden', id !== tabId));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            if(tabId === 'rekap') renderRekapData();
+        }
+        function openSettings() { document.getElementById('sheetUrlInput').value = sheetUrl; document.getElementById('settingsModal').classList.replace('hidden', 'flex'); }
+        function closeSettings() { document.getElementById('settingsModal').classList.replace('flex', 'hidden'); }
+        function toggleMonthPicker() { document.getElementById('monthPickerModal').classList.toggle('active'); }
+        function renderMonthPicker() {
+            document.getElementById('mp-year').innerText = currentYear;
+            document.getElementById('mp-months').innerHTML = MONTHS_SHORT.map((m, idx) => `<div class="p-2 rounded cursor-pointer transition ${idx === currentMonth ? 'bg-accent text-white font-bold' : 'text-gray-400 hover:bg-gray-700'}" onclick="selectMonth(${idx})">${m}</div>`).join('');
+        }
+        function selectMonth(idx) { currentMonth = idx; toggleMonthPicker(); renderMonthPicker(); renderRekapData(); }
+        function changeYear(d) { currentYear += d; renderMonthPicker(); }
+        function formatCurrencyInput(i) { let v = i.value.replace(/[^0-9]/g, ''); i.value = v ? parseInt(v).toLocaleString('id-ID') : ''; }
+        function resetForm() { document.getElementById('formCatat').reset(); document.getElementById('editId').value = ''; document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0]; }
+        function editTransaction(id) {
+            const t = transactions.find(x => x.id === id); if(!t) return;
+            switchTab('catat');
+            document.getElementById('editId').value = t.id;
+            document.getElementById('inputTanggal').value = t.tanggalIso;
+            document.getElementById('inputKategori').value = t.kategori;
+            document.getElementById('inputNominal').value = t.nominal.toLocaleString('id-ID');
+            document.getElementById('inputDetail').value = t.detail;
+            window.scrollTo(0,0);
+        }
+
+        function initCharts() {
+            Chart.defaults.color = '#9ca3af';
+            chartBar = new Chart(document.getElementById('barChart'), {
+                type: 'bar', data: { labels: ['Cash', 'GoPay', 'SeaBank'], datasets: [{ data: [0,0,0], backgroundColor: [COLORS.cash, COLORS.gopay, COLORS.seabank], borderRadius: 4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#374151' } } } }
+            });
+            chartDoughnutPusat = new Chart(document.getElementById('doughnutPusat'), {
+                type: 'doughnut', data: { labels: ['Sisa Jatim', 'Cash', 'GoPay', 'SeaBank'], datasets: [{ data: [1,0,0,0], backgroundColor: [COLORS.bankjatim, COLORS.cash, COLORS.gopay, COLORS.seabank], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+            });
+            chartDoughnutTotal = new Chart(document.getElementById('doughnutTotal'), {
+                type: 'doughnut', data: { labels: ['Jatim', 'Cash', 'GoPay', 'SeaBank'], datasets: [{ data: [1,1,1,1], backgroundColor: [COLORS.bankjatim, COLORS.cash, COLORS.gopay, COLORS.seabank], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { display: false } } }
+            });
+        }
+        function updateCharts(d) {
+            chartBar.data.datasets[0].data = [d.totals.cashOut, d.totals.gopayOut, d.totals.seabankOut]; chartBar.update();
+            chartDoughnutPusat.data.datasets[0].data = [d.bals.bankjatim, d.categoriesOut.bankjatim['Cash']||0, d.categoriesOut.bankjatim['GoPay']||0, d.categoriesOut.bankjatim['SeaBank']||0]; chartDoughnutPusat.update();
+            chartDoughnutTotal.data.datasets[0].data = [d.bals.bankjatim, d.bals.cash, d.bals.gopay, d.bals.seabank]; chartDoughnutTotal.update();
+        }
+
+        function seedSampleData() {
+            transactions = [
+                { id: '1', tanggalIso: '2026-04-01', tanggalDisplay: '1 April 2026', kategori: 'Salary', nominal: 15000000, detail: 'Gaji Bulanan' },
+                { id: '2', tanggalIso: '2026-04-02', tanggalDisplay: '2 April 2026', kategori: 'Cash', nominal: 3000000, detail: 'Tarik Tunai' },
+                { id: '3', tanggalIso: '2026-04-12', tanggalDisplay: '12 April 2026', kategori: 'StayCation', nominal: 161000, detail: 'Sumber Gempong' }
+            ];
+        }
     </script>
 </body>
 </html>
