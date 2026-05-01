@@ -64,6 +64,70 @@
         input[type="number"] {
             -moz-appearance: textfield; /* Untuk Firefox */
         }
+
+        /* --- PRINT LAYOUT --- */
+        @media print {
+            /* Sembunyikan semua elemen kecuali area detail transaksi */
+            nav, header, #rekap-nav, #rekap-cards, #view-dashboard, #view-akun, #view-catat, #toast, #modal-settings, .print\:hidden {
+                display: none !important;
+            }
+            
+            /* Reset body dan container agar dapat dicetak dengan aliran normal */
+            body, main, #main-container, #view-rekap {
+                display: block !important;
+                height: auto !important;
+                width: 100% !important;
+                overflow: visible !important;
+                position: static !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+            }
+
+            /* Styling khusus bagian Detail untuk menghemat tinta */
+            #rekap-detail-section {
+                background: white !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Ubah teks menjadi hitam/gelap agar kontras di kertas putih */
+            #rekap-detail-title {
+                color: #000 !important;
+                font-size: 1.5rem !important;
+                border-bottom: 2px solid #000 !important;
+                padding-bottom: 10px !important;
+                margin-bottom: 20px !important;
+            }
+            #rekap-detail-section th {
+                color: #000 !important;
+                background-color: #f1f5f9 !important;
+                font-weight: bold !important;
+                -webkit-print-color-adjust: exact;
+            }
+            #rekap-detail-section td, #rekap-detail-section span {
+                color: #000 !important;
+                font-weight: normal !important;
+            }
+
+            /* Tambahkan border tabel saat cetak */
+            #rekap-detail-section table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+            #rekap-detail-section th, #rekap-detail-section td {
+                border: 1px solid #ccc !important;
+                padding: 8px 12px !important;
+            }
+
+            /* Hilangkan batas tinggi (max-h) dan scrollbar saat cetak agar semua baris tercetak */
+            .overflow-y-auto, .overflow-x-auto, .max-h-\[50vh\] {
+                overflow: visible !important;
+                max-height: none !important;
+            }
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden text-sm md:text-base">
@@ -208,18 +272,18 @@
                             <div>
                                 <label class="block text-slate-400 mb-2 text-sm">Jenis Akun</label>
                                 <div class="flex gap-4">
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="akun-jenis" value="Utama" class="accent-bj" required> <span class="text-slate-300">Utama</span>
+                                    <label class="flex items-center gap-2 cursor-not-allowed opacity-50" title="Hanya bisa menambah Expenditures">
+                                        <input type="radio" name="akun-jenis" value="Utama" class="accent-bj" disabled> <span class="text-slate-300">Utama</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-not-allowed opacity-50" title="Hanya bisa menambah Expenditures">
+                                        <input type="radio" name="akun-jenis" value="Alokasi" class="accent-cash" disabled> <span class="text-slate-300">Alokasi</span>
                                     </label>
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="akun-jenis" value="Alokasi" class="accent-cash"> <span class="text-slate-300">Alokasi</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="akun-jenis" value="Expenditures" class="accent-gopay"> <span class="text-slate-300">Expenditures</span>
+                                        <input type="radio" name="akun-jenis" value="Expenditures" class="accent-gopay" checked> <span class="text-slate-300">Expenditures</span>
                                     </label>
                                 </div>
                             </div>
-                            <div id="akun-sumber-container" class="hidden fade-in">
+                            <div id="akun-sumber-container" class="fade-in">
                                 <label class="block text-slate-400 mb-1 text-sm">Dari Dana (Default)</label>
                                 <select id="akun-sumber" class="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-bj">
                                     <option value="Cash">Cash</option>
@@ -304,20 +368,26 @@
 
             <!-- VIEW: REKAPITULASI -->
             <div id="view-rekap" class="hidden fade-in space-y-6">
-                <!-- Navigasi Tahun & Bulan -->
-                <div class="glass-panel p-4 rounded-2xl flex flex-col items-center gap-4">
-                    <div class="flex items-center gap-6 text-xl font-bold text-white">
-                        <button onclick="changeYear(-1)" class="w-10 h-10 rounded-full bg-slate-700 hover:bg-bj transition flex items-center justify-center"><i class="fa-solid fa-chevron-left"></i></button>
-                        <span id="rekap-tahun">2026</span>
-                        <button onclick="changeYear(1)" class="w-10 h-10 rounded-full bg-slate-700 hover:bg-bj transition flex items-center justify-center"><i class="fa-solid fa-chevron-right"></i></button>
+                <!-- Navigasi Tahun & Bulan Sejajar -->
+                <div id="rekap-nav" class="glass-panel p-4 rounded-2xl flex flex-col xl:flex-row items-center gap-6">
+                    <!-- Tahun -->
+                    <div class="flex items-center justify-center gap-4 text-2xl font-bold text-white shrink-0 bg-slate-800/50 px-6 py-2 rounded-xl border border-slate-700 shadow-sm w-full xl:w-auto">
+                        <button onclick="changeYear(-1)" class="w-10 h-10 rounded-full bg-slate-700 hover:bg-bj hover:text-slate-900 transition flex items-center justify-center shadow-md"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="rekap-tahun" class="w-20 text-center tracking-wide">2026</span>
+                        <button onclick="changeYear(1)" class="w-10 h-10 rounded-full bg-slate-700 hover:bg-bj hover:text-slate-900 transition flex items-center justify-center shadow-md"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
-                    <div class="flex flex-wrap justify-center gap-2" id="rekap-bulan-container">
+                    
+                    <!-- Garis Pemisah (Hanya di layar besar) -->
+                    <div class="hidden xl:block w-px h-12 bg-slate-600"></div>
+                    
+                    <!-- Bulan (Diperbesar & Proporsional) -->
+                    <div class="flex flex-wrap justify-center xl:justify-start gap-2 md:gap-3 w-full" id="rekap-bulan-container">
                         <!-- Injected by JS -->
                     </div>
                 </div>
 
                 <!-- 3 Big Card Rekap -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div id="rekap-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="glass-panel p-5 rounded-2xl border-t-4 border-t-bj shadow-lg">
                         <p class="text-slate-400 font-medium mb-1">Saldo <span id="lbl-saldo-bln"></span></p>
                         <h2 class="text-2xl font-bold text-white" id="rekap-saldo">Rp 0</h2>
@@ -333,16 +403,21 @@
                 </div>
 
                 <!-- Detail Transaksi Bulanan -->
-                <div class="glass-panel p-6 rounded-2xl">
-                    <h3 class="text-lg font-semibold border-b border-slate-700 pb-2 mb-4">Detail Transaksi Bulanan</h3>
-                    <div class="overflow-x-auto">
+                <div class="glass-panel p-6 rounded-2xl" id="rekap-detail-section">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-2 mb-4">
+                        <h3 class="text-lg font-semibold text-white" id="rekap-detail-title">Detail Transaksi Bulan Aktif</h3>
+                        <button onclick="window.print()" class="bg-slate-700 hover:bg-bj hover:text-slate-900 text-white px-3 py-1.5 rounded transition text-sm flex items-center gap-2 print:hidden shadow-md">
+                            <i class="fa-solid fa-print"></i> Cetak
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto overflow-y-auto max-h-[50vh] custom-scrollbar">
                         <table class="w-full text-left border-collapse">
-                            <thead>
+                            <thead class="sticky top-0 bg-slate-800 z-10 print:static print:bg-transparent">
                                 <tr class="text-slate-400 text-sm uppercase border-b border-slate-700">
-                                    <th class="pb-2">Tgl</th>
-                                    <th class="pb-2">Kategori</th>
-                                    <th class="pb-2">Detail</th>
-                                    <th class="pb-2 text-right">Nominal</th>
+                                    <th class="p-3">Tgl</th>
+                                    <th class="p-3">Kategori</th>
+                                    <th class="p-3">Detail</th>
+                                    <th class="p-3 text-right">Nominal</th>
                                 </tr>
                             </thead>
                             <tbody id="rekap-transactions" class="text-sm">
@@ -385,6 +460,8 @@
                 { id: 'a2', no: '102', name: 'Allowance', type: 'Utama' },
                 { id: 'a3', no: '103', name: 'Extra', type: 'Utama' },
                 { id: 'a4', no: '104', name: 'Receivable', type: 'Utama' },
+                { id: 'a11', no: '105', name: 'Interest', type: 'Utama' },
+                { id: 'a12', no: '106', name: 'Return', type: 'Utama' },
                 { id: 'a5', no: '201', name: 'Cash', type: 'Alokasi' },
                 { id: 'a6', no: '202', name: 'GoPay', type: 'Alokasi' },
                 { id: 'a7', no: '203', name: 'SeaBank', type: 'Alokasi' },
@@ -476,8 +553,9 @@
                 if (type === 'Utama') {
                     bal.income += val;
                     if (t.kategori === 'Salary') bal.bj += val; // Pusat Dana
-                    else if (t.kategori === 'Allowance') bal.gopay += val;
+                    else if (t.kategori === 'Allowance' || t.kategori === 'Interest') bal.gopay += val;
                     else if (t.kategori === 'Extra' || t.kategori === 'Receivable') bal.cash += val;
+                    else if (t.kategori === 'Return') bal.seabank += val;
                 } 
                 else if (type === 'Alokasi') {
                     // Alokasi didapat dari Pusat Dana (Bank Jatim dikurangi)
@@ -720,8 +798,6 @@
                     appData.accounts[idx] = { ...appData.accounts[idx], no, name: nama, type: jenis, defaultSource: sumber };
                 }
                 showToast('Akun berhasil diupdate');
-                document.getElementById('btn-save-akun').innerText = 'Simpan Akun';
-                editAkunId = null;
             } else {
                 appData.accounts.push({ id: 'a'+Date.now(), no, name: nama, type: jenis, defaultSource: sumber });
                 showToast('Akun berhasil ditambahkan');
@@ -730,13 +806,13 @@
             saveLocalData();
             renderAll(); // Otomatis mengisi Kategori di Transaksi
             e.target.reset();
-            document.getElementById('akun-sumber-container').classList.add('hidden');
         });
 
-        // Pastikan reset membatalkan status update
+        // Pastikan reset membatalkan status update dan mengembalikan UI ke default Expenditures
         document.getElementById('form-akun').addEventListener('reset', () => {
             setTimeout(() => {
-                document.getElementById('akun-sumber-container').classList.add('hidden');
+                document.querySelector('input[name="akun-jenis"][value="Expenditures"]').checked = true;
+                document.getElementById('akun-sumber-container').classList.remove('hidden');
                 document.getElementById('btn-save-akun').innerText = 'Simpan Akun';
                 editAkunId = null;
             }, 10);
@@ -936,10 +1012,10 @@
         function renderRekap() {
             document.getElementById('rekap-tahun').innerText = rekapYear;
             
-            // Render Bulan buttons
+            // Render Bulan buttons (Diperbesar secara proporsional dan flex-1 agar memenuhi ruang)
             const container = document.getElementById('rekap-bulan-container');
             container.innerHTML = monthNames.map((m, i) => `
-                <button onclick="setRekapMonth(${i})" class="px-3 py-1 rounded-full text-sm font-medium transition ${i === rekapMonth ? 'bg-bj text-slate-900 shadow-md scale-110' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}">${m.substring(0,3)}</button>
+                <button onclick="setRekapMonth(${i})" class="flex-1 min-w-[4rem] px-3 md:px-4 py-2 md:py-3 rounded-xl text-sm md:text-base font-semibold transition ${i === rekapMonth ? 'bg-bj text-slate-900 shadow-lg scale-105' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}">${m.substring(0,3)}</button>
             `).join('');
 
             // Calculate for specific month/year
@@ -966,6 +1042,9 @@
                 cardSurplus.className = 'glass-panel p-5 rounded-2xl border-t-4 border-t-red-500 shadow-lg';
             }
 
+            // --- Ubah Judul Detail Transaksi Bulan Aktif Secara Dinamis ---
+            document.getElementById('rekap-detail-title').innerText = `Detail Transaksi Bulan ${monthNames[rekapMonth]}`;
+
             // Table rekap
             const tbody = document.getElementById('rekap-transactions');
             const filtered = appData.transactions.filter(t => {
@@ -978,10 +1057,10 @@
                 const valStyle = info.isExpense ? `color: ${info.color}; opacity: 0.8;` : `color: ${info.color}; font-weight: bold;`;
                 return `
                 <tr class="border-b border-slate-700/50 hover:bg-slate-800/50">
-                    <td class="py-2 whitespace-nowrap text-xs">${formatTanggalIndo(t.tanggal)}</td>
-                    <td class="py-2"><span class="bg-slate-800 px-2 py-1 rounded text-xs" style="color:${info.color}">${t.kategori}</span></td>
-                    <td class="py-2 text-slate-400 text-xs">${t.detail || '-'}</td>
-                    <td class="py-2 text-right" style="${valStyle}">${info.isExpense ? '-' : '+'}${formatRp(t.nominal)}</td>
+                    <td class="p-3 whitespace-nowrap text-xs">${formatTanggalIndo(t.tanggal)}</td>
+                    <td class="p-3"><span class="bg-slate-800 px-2 py-1 rounded text-xs" style="color:${info.color}">${t.kategori}</span></td>
+                    <td class="p-3 text-slate-400 text-xs">${t.detail || '-'}</td>
+                    <td class="p-3 text-right" style="${valStyle}">${info.isExpense ? '-' : '+'}${formatRp(t.nominal)}</td>
                 </tr>`;
             }).join('') || '<tr><td colspan="4" class="text-center py-4 text-slate-500">Tidak ada transaksi bulan ini.</td></tr>';
         }
@@ -1015,7 +1094,16 @@
             const saved = localStorage.getItem('fintrack_data');
             if (saved) {
                 const parsed = JSON.parse(saved);
-                if(parsed.accounts) appData.accounts = parsed.accounts;
+                if(parsed.accounts) {
+                    appData.accounts = parsed.accounts;
+                    // Memastikan data lama mendapatkan Akun Default Baru (Interest & Return)
+                    if (!appData.accounts.find(a => a.name === 'Interest')) {
+                        appData.accounts.push({ id: 'a11', no: '105', name: 'Interest', type: 'Utama' });
+                    }
+                    if (!appData.accounts.find(a => a.name === 'Return')) {
+                        appData.accounts.push({ id: 'a12', no: '106', name: 'Return', type: 'Utama' });
+                    }
+                }
                 if(parsed.transactions) appData.transactions = parsed.transactions;
                 if(parsed.settings) appData.settings = parsed.settings;
             }
